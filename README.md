@@ -8,7 +8,7 @@ permission** — your secrets never leave your device.
 ![No build step](https://img.shields.io/badge/build-none-lightgrey)
 
 <p align="center">
-  <img src="store/ekran/1-kodlar.png" alt="exte popup showing 2FA codes" width="640">
+  <img src="store/ekran/screenshot-1-codes-1280x800.png" alt="exte popup showing 2FA codes" width="640">
 </p>
 
 ## Features

@@ -8,7 +8,8 @@ görseller, kullanıcının göreceği arayüzün birebir aynısı olur — elle
 
     python3.12 tools/magaza_gorsel.py
 
-Çıktı: store/ekran/1-kodlar.png … 4-koyu.png (1280×800) + store/ekran/tanitim-440x280.png
+Çıktı: store/ekran/screenshot-*-1280x800.png + store/ekran/promo-tile-440x280.png
+(Dosya adları ölçüyü taşır — mağaza formunda hangi alana ne gireceği isimden belli.)
 """
 import http.server
 import json
@@ -106,19 +107,19 @@ KOYU = {"zemin": "linear-gradient(135deg,#0d1117 0%,#16233b 100%)", "yazi": "#e6
         "mute": "#9aa4b2", "cerceveZemin": "#161b22", "cubukZemin": "#20262e", "nokta": "#3a434f"}
 
 VITRINLER = [
-    {"ad": "1-kodlar", "sayfa": "popup.html", "g": 360, "y": 540, "tema": ACIK, "tikla": "null",
+    {"ad": "screenshot-1-codes-1280x800", "sayfa": "popup.html", "g": 360, "y": 540, "tema": ACIK, "tikla": "null",
      "h1": "Your 2FA codes,<br>one click away",
      "alt": "Click a code and it is copied. Every card shows how long it stays valid.", "liste": ""},
-    {"ad": "2-ekleme", "sayfa": "popup.html", "g": 360, "y": 540, "tema": ACIK, "tikla": '"#ekleAc"',
+    {"ad": "screenshot-2-add-account-1280x800", "sayfa": "popup.html", "g": 360, "y": 540, "tema": ACIK, "tikla": '"#ekleAc"',
      "h1": "Four ways to add<br>an account",
      "alt": "", "liste": "<ul><li>Scan the QR code on your screen</li><li>Pick a QR image or paste one</li>"
                           "<li>Paste an <code>otpauth://</code> link</li><li>Enter it manually</li></ul>"},
-    {"ad": "3-yedek", "sayfa": "ayarlar.html", "g": 620, "y": 620, "tema": ACIK, "tikla": "null",
+    {"ad": "screenshot-3-backup-1280x800", "sayfa": "ayarlar.html", "g": 620, "y": 620, "tema": ACIK, "tikla": "null",
      "h1": "Encrypted backup,<br>one-click restore",
      "alt": "", "liste": "<ul><li>Password-protected JSON (AES-256-GCM)</li>"
                           "<li><code>otpauth://</code> list (.txt)</li>"
                           "<li>Import straight from a Google Authenticator QR</li></ul>"},
-    {"ad": "4-koyu", "sayfa": "popup.html", "g": 360, "y": 540, "tema": KOYU, "tikla": "null",
+    {"ad": "screenshot-4-dark-theme-1280x800", "sayfa": "popup.html", "g": 360, "y": 540, "tema": KOYU, "tikla": "null",
      "h1": "Dark theme and an<br>optional password lock",
      "alt": "With the lock on, your secrets are stored encrypted with AES-256-GCM. No server, no network permission.",
      "liste": ""},
@@ -188,9 +189,9 @@ def main() -> None:
                 goruntu_al(f"http://127.0.0.1:{port}/{vitrin['ad']}.html",
                            HEDEF / f"{vitrin['ad']}.png", "1280,800")
 
-            (gecici / "tanitim.html").write_text(TANITIM, encoding="utf-8")
-            goruntu_al(f"http://127.0.0.1:{port}/tanitim.html",
-                       HEDEF / "tanitim-440x280.png", "440,280")
+            (gecici / "promo.html").write_text(TANITIM, encoding="utf-8")
+            goruntu_al(f"http://127.0.0.1:{port}/promo.html",
+                       HEDEF / "promo-tile-440x280.png", "440,280")
         finally:
             sunucu.shutdown()
 

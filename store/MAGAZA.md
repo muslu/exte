@@ -84,17 +84,18 @@ save an encrypted backup somewhere safe.
 
 | Panel alanı | Gereken ölçü | Seçilecek dosya | Boyut |
 |---|---|---|---|
-| **Store icon** | 128×128 PNG | `icons/128.png` | 128×128 · 5,2 KB |
-| **Screenshots** (1–5 adet, sırayla) | 1280×800 veya 640×400 | `store/ekran/1-kodlar.png` | 1280×800 · 283,6 KB |
-| ” | ” | `store/ekran/2-ekleme.png` | 1280×800 · 283,4 KB |
-| ” | ” | `store/ekran/3-yedek.png` | 1280×800 · 275,2 KB |
-| ” | ” | `store/ekran/4-koyu.png` | 1280×800 · 242,6 KB |
-| **Small promo tile** | 440×280 PNG | `store/ekran/tanitim-440x280.png` | 440×280 · 49,1 KB |
+| **Store icon** | 128×128 PNG | `icons/128.png` | 128×128 · 5 KB |
+| **Screenshot 1** (kartta öne çıkan) | 1280×800 | `store/ekran/screenshot-1-codes-1280x800.png` | 1280×800 · 284 KB |
+| **Screenshot 2** | 1280×800 | `store/ekran/screenshot-2-add-account-1280x800.png` | 1280×800 · 283 KB |
+| **Screenshot 3** | 1280×800 | `store/ekran/screenshot-3-backup-1280x800.png` | 1280×800 · 275 KB |
+| **Screenshot 4** | 1280×800 | `store/ekran/screenshot-4-dark-theme-1280x800.png` | 1280×800 · 243 KB |
+| **Small promo tile** | 440×280 PNG | `store/ekran/promo-tile-440x280.png` | 440×280 · 49 KB |
 | **Marquee promo tile** | 1400×560 | — (yok, isteğe bağlı) | — |
 | **YouTube video** | URL | — (yok) | — |
 
-Dosya boyutları `tools/magaza_gorsel.py` her çalıştığında birkaç KB oynar; ölçüler sabit kalır.
-İlk ekran görüntüsü mağaza kartında öne çıkar — sıralamayı yukarıdaki gibi bırak.
+**Dosya adları ölçüyü taşır** — panelde hangi alana ne yükleneceği isimden belli.
+Ekran görüntülerini yukarıdaki sırayla yükle; ilki mağaza kartında öne çıkar.
+Boyutlar `tools/magaza_gorsel.py` her çalıştığında birkaç KB oynar, ölçüler sabit kalır.
 
 ### Additional fields
 
