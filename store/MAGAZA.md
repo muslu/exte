@@ -20,7 +20,7 @@ Panel: <https://chrome.google.com/webstore/devconsole> → **Add new item** → 
 | Google hesabında 2FA | Zorunlu |
 | E-posta doğrulaması | Panelde "Contact email" doğrulanmış olmalı |
 | Yayıncı adı | Mağazada görünen ad (ör. `MAKDOS`) |
-| Gizlilik politikası URL'i | **Zorunlu.** Kullan: `https://github.com/muslu/exte/blob/main/PRIVACY.md` (yayında, herkese açık) |
+| Gizlilik politikası URL'i | **Zorunlu.** Kullan: `https://muslu.github.io/exte/privacy.html` (yayında) |
 
 ---
 
@@ -156,13 +156,12 @@ user's own two-factor authentication accounts, following the TOTP (RFC 6238) and
 **Privacy policy URL:**
 
 ```
-https://github.com/muslu/exte/blob/main/PRIVACY.md
+https://muslu.github.io/exte/privacy.html
 ```
 
-> GitHub Pages (`https://muslu.github.io/exte/privacy.html`) bu hesabın ilk Pages sitesi
-> olduğu için henüz sağlanmadı; `.github/workflows/pages.yml` hazır ve yayına girdiğinde
-> aynı içeriği sunacak. O zaman mağazadaki URL'i isteğe bağlı olarak oraya çevirebilirsin —
-> yukarıdaki GitHub adresi de kalıcı ve geçerli bir gizlilik politikası sayfasıdır.
+> Sayfa `PRIVACY.md`'den üretilir (`tools/sayfa_uret.py`) ve `docs/` değişince
+> `.github/workflows/pages.yml` ile kendiliğinden yayınlanır. Bir aksilik olursa aynı metin
+> `https://github.com/muslu/exte/blob/main/PRIVACY.md` adresinde de duruyor.
 
 ---
 
