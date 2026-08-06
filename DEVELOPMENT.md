@@ -22,6 +22,7 @@ Serverless, with no network permission — all data stays in `chrome.storage`.
 | **jsQR is vendored** | MV3's CSP forbids remote code, so it cannot be loaded from a CDN. It is UMD, so it is loaded with a classic `<script>` tag and read from `globalThis.jsQR`. |
 | **Hand-written protobuf decoder** | Bundling a protobuf library for one message schema is overkill; ~90 lines of varint + length-delimited parsing is enough. |
 | **Options page is a full tab** | A popup can lose focus and close when a file picker opens. Backup and import live in `ayarlar.html`, where that cannot happen. |
+| **Settings are grouped into tabs** | Six stacked cards had grown into a long scroll. `ayarlar.html` now splits them into Accounts / Backup and import / Security / Appearance, using the same `role="tablist"` pattern as the popup's add-account tabs plus roving `tabindex` and arrow-key navigation. The active tab is mirrored into `location.hash` with `replaceState`, so a reload (and a deep link such as `ayarlar.html#yedekleme`) lands on the same section without adding history entries. |
 | **Own i18n, not `chrome.i18n`** | The core modules are unit-tested in Node, where no `chrome` object exists. `src/metinler.js` is plain JS and works in both. `chrome.i18n` is used only for the manifest name/description (`_locales/`). |
 
 ## Pitfalls

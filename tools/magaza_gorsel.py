@@ -127,7 +127,8 @@ VITRINLER = [
      "h1": "Four ways to add<br>an account",
      "alt": "", "liste": "<ul><li>Scan the QR code on your screen</li><li>Pick a QR image or paste one</li>"
                           "<li>Paste an <code>otpauth://</code> link</li><li>Enter it manually</li></ul>"},
-    {"ad": "screenshot-3-backup-1280x800", "sayfa": "ayarlar.html", "g": 620, "y": 620, "tema": ACIK, "tikla": "null",
+    # Çengel, sekmeli ayarlar sayfasını doğrudan yedekleme bölümünde açar.
+    {"ad": "screenshot-3-backup-1280x800", "sayfa": "ayarlar.html#yedekleme", "g": 620, "y": 620, "tema": ACIK, "tikla": "null",
      "h1": "Encrypted backup,<br>one-click restore",
      "alt": "", "liste": "<ul><li>Password-protected JSON (AES-256-GCM)</li>"
                           "<li><code>otpauth://</code> list (.txt)</li>"

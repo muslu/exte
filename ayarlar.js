@@ -14,6 +14,51 @@ const durum = (secici, mesaj, tur = "") => {
   duyur(mesaj);
 };
 
+/* ---------------- sekmeler ---------------- */
+
+// [düğme, panel, adres çengeli] — çengel sayesinde sayfa yenilenince aynı bölüm açılır.
+const SEKMELER = [
+  ["#sekHesaplar", "#panelHesaplar", "hesaplar"],
+  ["#sekYedek", "#panelYedek", "yedekleme"],
+  ["#sekGuvenlik", "#panelGuvenlik", "guvenlik"],
+  ["#sekGorunum", "#panelGorunum", "gorunum"],
+];
+
+function sekmeSec(indeks, odakla = false) {
+  SEKMELER.forEach(([dugme, panel], i) => {
+    const secili = i === indeks;
+    // Roving tabindex: Tab tuşu sekme şeridine bir kez girer, aralarında oklarla gezilir.
+    $(dugme).setAttribute("aria-selected", String(secili));
+    $(dugme).tabIndex = secili ? 0 : -1;
+    $(panel).hidden = !secili;
+  });
+  if (odakla) $(SEKMELER[indeks][0]).focus();
+  history.replaceState(null, "", `#${SEKMELER[indeks][2]}`);
+}
+
+function sekmeleriBaslat() {
+  SEKMELER.forEach(([dugme], i) => $(dugme).addEventListener("click", () => sekmeSec(i)));
+
+  $('[role="tablist"]').addEventListener("keydown", (e) => {
+    const simdiki = SEKMELER.findIndex(([dugme]) => $(dugme).getAttribute("aria-selected") === "true");
+    const adim = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+    const hedef = adim
+      ? (simdiki + adim + SEKMELER.length) % SEKMELER.length
+      : e.key === "Home" ? 0
+      : e.key === "End" ? SEKMELER.length - 1
+      : null;
+    if (hedef === null) return;
+    e.preventDefault();
+    sekmeSec(hedef, true);
+  });
+
+  const cengel = location.hash.slice(1);
+  const baslangic = SEKMELER.findIndex(([, , ad]) => ad === cengel);
+  sekmeSec(baslangic < 0 ? 0 : baslangic);
+}
+
+/* ---------------- parola sorma sıklığı ---------------- */
+
 /** Hazır seçenekler; bunların dışındaki her süre "özel" sayılır. */
 const SABIT_SURELER = [depo.HER_ACILIS, 0, 5, 15, 60];
 
@@ -307,5 +352,6 @@ $("#dil").addEventListener("change", async (e) => {
 await diliBaslat();
 sayfayiCevir();
 otoKilitSecenekleri();
+sekmeleriBaslat();
 await temayiUygula();
 await tazele();

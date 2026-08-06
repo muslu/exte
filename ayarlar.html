@@ -47,139 +47,158 @@
 
   <div id="anaIcerik">
 
-    <section class="kart bolum" aria-labelledby="disaBaslik">
-      <h2 id="disaBaslik" data-i18n="disaAktar">Export</h2>
-      <form id="disaForm">
+    <div class="sekmeler" role="tablist" data-i18n-aria="ayarBolumleri" aria-label="Settings sections">
+      <button type="button" class="sekme" role="tab" id="sekHesaplar" aria-selected="true"
+              aria-controls="panelHesaplar" data-i18n="sekmeHesaplar">Accounts</button>
+      <button type="button" class="sekme" role="tab" id="sekYedek" aria-selected="false" tabindex="-1"
+              aria-controls="panelYedek" data-i18n="sekmeYedekleme">Backup</button>
+      <button type="button" class="sekme" role="tab" id="sekGuvenlik" aria-selected="false" tabindex="-1"
+              aria-controls="panelGuvenlik" data-i18n="sekmeGuvenlik">Security</button>
+      <button type="button" class="sekme" role="tab" id="sekGorunum" aria-selected="false" tabindex="-1"
+              aria-controls="panelGorunum" data-i18n="sekmeGorunum">Appearance</button>
+    </div>
+
+    <div id="panelHesaplar" role="tabpanel" aria-labelledby="sekHesaplar" tabindex="0">
+      <section class="kart bolum" aria-labelledby="hesapBaslik">
+        <h2 id="hesapBaslik" data-i18n="hesaplar">Accounts</h2>
+        <table id="hesapTablo">
+          <thead><tr>
+            <th data-i18n="tabloServis">Service</th>
+            <th data-i18n="tabloHesap">Account</th>
+            <th data-i18n="tabloTur">Type</th>
+            <th></th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+        <p id="hesapBos" class="ipucu" hidden data-i18n="kayitliHesapYok">No saved accounts.</p>
+      </section>
+    </div>
+
+    <div id="panelYedek" role="tabpanel" aria-labelledby="sekYedek" tabindex="0">
+      <section class="kart bolum" aria-labelledby="disaBaslik">
+        <h2 id="disaBaslik" data-i18n="disaAktar">Export</h2>
+        <form id="disaForm">
+          <div class="alan">
+            <label for="disaParola" data-i18n="yedekParolasi">Backup password (at least 6 characters)</label>
+            <input type="password" id="disaParola" autocomplete="new-password"
+                   data-i18n-ph="yedekParolaIpucu" placeholder="Encrypts the backup file">
+          </div>
+          <button type="submit" class="birincil" data-i18n="sifreliIndir">Download encrypted JSON</button>
+          <button type="button" id="disaTxt" class="tehlike" data-i18n="sifresizIndir">Download unencrypted .txt</button>
+        </form>
+        <p class="uyari-kutu" style="margin-top:.7rem" data-i18n-html="txtUyari"></p>
+        <p id="disaDurum" class="durum" role="status"></p>
+      </section>
+
+      <section class="kart bolum" aria-labelledby="iceBaslik">
+        <h2 id="iceBaslik" data-i18n="iceAktar">Import</h2>
+        <p class="ipucu" data-i18n-html="iceAktarIpucu"></p>
         <div class="alan">
-          <label for="disaParola" data-i18n="yedekParolasi">Backup password (at least 6 characters)</label>
-          <input type="password" id="disaParola" autocomplete="new-password"
-                 data-i18n-ph="yedekParolaIpucu" placeholder="Encrypts the backup file">
+          <label for="iceParola" data-i18n="yedekParolasiIce">Backup password (for encrypted JSON)</label>
+          <input type="password" id="iceParola" autocomplete="current-password">
         </div>
-        <button type="submit" class="birincil" data-i18n="sifreliIndir">Download encrypted JSON</button>
-        <button type="button" id="disaTxt" class="tehlike" data-i18n="sifresizIndir">Download unencrypted .txt</button>
-      </form>
-      <p class="uyari-kutu" style="margin-top:.7rem" data-i18n-html="txtUyari"></p>
-      <p id="disaDurum" class="durum" role="status"></p>
-    </section>
+        <button type="button" id="iceDosyaAc" class="birincil" data-i18n="dosyaSec">Choose file…</button>
+        <input type="file" id="iceDosya" accept=".json,.txt,application/json,text/plain" hidden>
+        <p id="iceDurum" class="durum" role="status"></p>
+      </section>
 
-    <section class="kart bolum" aria-labelledby="iceBaslik">
-      <h2 id="iceBaslik" data-i18n="iceAktar">Import</h2>
-      <p class="ipucu" data-i18n-html="iceAktarIpucu"></p>
-      <div class="alan">
-        <label for="iceParola" data-i18n="yedekParolasiIce">Backup password (for encrypted JSON)</label>
-        <input type="password" id="iceParola" autocomplete="current-password">
-      </div>
-      <button type="button" id="iceDosyaAc" class="birincil" data-i18n="dosyaSec">Choose file…</button>
-      <input type="file" id="iceDosya" accept=".json,.txt,application/json,text/plain" hidden>
-      <p id="iceDurum" class="durum" role="status"></p>
-    </section>
-
-    <section class="kart bolum" aria-labelledby="gocBaslik">
-      <h2 id="gocBaslik" data-i18n="gocBaslik">Import from Google Authenticator</h2>
-      <p class="ipucu" data-i18n-html="gocIpucu"></p>
-      <button type="button" id="gocDosyaAc" class="birincil" data-i18n="gocResimSec">Choose QR image…</button>
-      <input type="file" id="gocDosya" accept="image/*" hidden>
-      <div class="alan" style="margin-top:.7rem">
-        <label for="gocMetin" data-i18n-html="gocBaglantiEtiket"></label>
-        <input type="text" id="gocMetin" placeholder="otpauth-migration://offline?data=…">
-      </div>
-      <button type="button" id="gocEkle" data-i18n="gocBaglantidanAktar">Import from link</button>
-      <p id="gocDurum" class="durum" role="status"></p>
-    </section>
-
-    <section class="kart bolum" aria-labelledby="kilitAyarBaslik">
-      <h2 id="kilitAyarBaslik" data-i18n="parolaKilidi">Password</h2>
-      <p class="ipucu" data-i18n="kilitAciklama"></p>
-
-      <h3 style="margin-top:.9rem" data-i18n="parolaDegistirBaslik">Change password</h3>
-      <form id="degistirForm">
-        <div class="alan">
-          <label for="degistirEski" data-i18n="mevcutParola">Current password</label>
-          <input type="password" id="degistirEski" autocomplete="current-password" required>
+      <section class="kart bolum" aria-labelledby="gocBaslik">
+        <h2 id="gocBaslik" data-i18n="gocBaslik">Import from Google Authenticator</h2>
+        <p class="ipucu" data-i18n-html="gocIpucu"></p>
+        <button type="button" id="gocDosyaAc" class="birincil" data-i18n="gocResimSec">Choose QR image…</button>
+        <input type="file" id="gocDosya" accept="image/*" hidden>
+        <div class="alan" style="margin-top:.7rem">
+          <label for="gocMetin" data-i18n-html="gocBaglantiEtiket"></label>
+          <input type="text" id="gocMetin" placeholder="otpauth-migration://offline?data=…">
         </div>
-        <div class="alan">
-          <label for="degistirYeni" data-i18n="yeniParola">New password (at least 6 characters)</label>
-          <input type="password" id="degistirYeni" autocomplete="new-password" minlength="6" required>
-        </div>
-        <div class="alan">
-          <label for="degistirYeni2" data-i18n="parolaTekrar">Password (again)</label>
-          <input type="password" id="degistirYeni2" autocomplete="new-password" minlength="6" required>
-        </div>
-        <button type="submit" class="birincil" data-i18n="parolaDegistirDugme">Change password</button>
-        <p class="ipucu" data-i18n="kilitUyari">If you forget your password your accounts cannot be recovered — take a backup first.</p>
-      </form>
+        <button type="button" id="gocEkle" data-i18n="gocBaglantidanAktar">Import from link</button>
+        <p id="gocDurum" class="durum" role="status"></p>
+      </section>
+    </div>
 
-      <div class="alan" style="margin-top:.9rem">
-        <label for="otoKilit" data-i18n="otomatikKilit">Ask for the password</label>
-        <select id="otoKilit">
-          <option value="-1">Every time exte is opened</option>
-          <option value="0">Once per browser session</option>
-          <option value="5">5 min</option>
-          <option value="15">15 min</option>
-          <option value="60">1 hour</option>
-          <option value="ozel">After a period I choose…</option>
-        </select>
-      </div>
+    <div id="panelGuvenlik" role="tabpanel" aria-labelledby="sekGuvenlik" tabindex="0">
+      <section class="kart bolum" aria-labelledby="kilitAyarBaslik">
+        <h2 id="kilitAyarBaslik" data-i18n="parolaKilidi">Password</h2>
+        <p class="ipucu" data-i18n="kilitAciklama"></p>
 
-      <div id="ozelSureAlan" hidden>
-        <div class="satir alan">
+        <h3 style="margin-top:.9rem" data-i18n="parolaDegistirBaslik">Change password</h3>
+        <form id="degistirForm">
+          <div class="alan">
+            <label for="degistirEski" data-i18n="mevcutParola">Current password</label>
+            <input type="password" id="degistirEski" autocomplete="current-password" required>
+          </div>
+          <div class="alan">
+            <label for="degistirYeni" data-i18n="yeniParola">New password (at least 6 characters)</label>
+            <input type="password" id="degistirYeni" autocomplete="new-password" minlength="6" required>
+          </div>
+          <div class="alan">
+            <label for="degistirYeni2" data-i18n="parolaTekrar">Password (again)</label>
+            <input type="password" id="degistirYeni2" autocomplete="new-password" minlength="6" required>
+          </div>
+          <button type="submit" class="birincil" data-i18n="parolaDegistirDugme">Change password</button>
+          <p class="ipucu" data-i18n="kilitUyari">If you forget your password your accounts cannot be recovered — take a backup first.</p>
+        </form>
+
+        <div class="alan" style="margin-top:.9rem">
+          <label for="otoKilit" data-i18n="otomatikKilit">Ask for the password</label>
+          <select id="otoKilit">
+            <option value="-1">Every time exte is opened</option>
+            <option value="0">Once per browser session</option>
+            <option value="5">5 min</option>
+            <option value="15">15 min</option>
+            <option value="60">1 hour</option>
+            <option value="ozel">After a period I choose…</option>
+          </select>
+        </div>
+
+        <div id="ozelSureAlan" hidden>
+          <div class="satir alan">
+            <span>
+              <label for="ozelSayi" data-i18n="ozelSure">Do not ask again for</label>
+              <input type="number" id="ozelSayi" min="1" max="43200" step="1" value="30" required>
+            </span>
+            <span>
+              <label for="ozelBirim" data-i18n="ozelBirim">Unit</label>
+              <select id="ozelBirim">
+                <option value="1">minutes</option>
+                <option value="60">hours</option>
+                <option value="1440">days</option>
+              </select>
+            </span>
+            <span class="dar" style="align-self:end">
+              <button type="button" id="ozelKaydet" class="birincil" data-i18n="kaydet">Save</button>
+            </span>
+          </div>
+          <p class="ipucu" data-i18n="otoOzelIpucu"></p>
+        </div>
+
+        <p id="kilitAyarDurum" class="durum" role="status"></p>
+      </section>
+    </div>
+
+    <div id="panelGorunum" role="tabpanel" aria-labelledby="sekGorunum" tabindex="0">
+      <section class="kart bolum" aria-labelledby="gorunumBaslik">
+        <h2 id="gorunumBaslik" data-i18n="gorunum">Appearance</h2>
+        <div class="satir">
           <span>
-            <label for="ozelSayi" data-i18n="ozelSure">Do not ask again for</label>
-            <input type="number" id="ozelSayi" min="1" max="43200" step="1" value="30" required>
-          </span>
-          <span>
-            <label for="ozelBirim" data-i18n="ozelBirim">Unit</label>
-            <select id="ozelBirim">
-              <option value="1">minutes</option>
-              <option value="60">hours</option>
-              <option value="1440">days</option>
+            <label for="tema" data-i18n="tema">Theme</label>
+            <select id="tema">
+              <option value="auto" data-i18n="temaAuto">Follow system setting</option>
+              <option value="light" data-i18n="temaAcik">Light</option>
+              <option value="dark" data-i18n="temaKoyu">Dark</option>
             </select>
           </span>
-          <span class="dar" style="align-self:end">
-            <button type="button" id="ozelKaydet" class="birincil" data-i18n="kaydet">Save</button>
+          <span>
+            <label for="dil" data-i18n="dil">Language</label>
+            <select id="dil">
+              <option value="auto" data-i18n="dilAuto">Follow browser language</option>
+              <option value="en">English</option>
+              <option value="tr">Türkçe</option>
+            </select>
           </span>
         </div>
-        <p class="ipucu" data-i18n="otoOzelIpucu"></p>
-      </div>
-
-      <p id="kilitAyarDurum" class="durum" role="status"></p>
-    </section>
-
-    <section class="kart bolum" aria-labelledby="gorunumBaslik">
-      <h2 id="gorunumBaslik" data-i18n="gorunum">Appearance</h2>
-      <div class="satir">
-        <span>
-          <label for="tema" data-i18n="tema">Theme</label>
-          <select id="tema">
-            <option value="auto" data-i18n="temaAuto">Follow system setting</option>
-            <option value="light" data-i18n="temaAcik">Light</option>
-            <option value="dark" data-i18n="temaKoyu">Dark</option>
-          </select>
-        </span>
-        <span>
-          <label for="dil" data-i18n="dil">Language</label>
-          <select id="dil">
-            <option value="auto" data-i18n="dilAuto">Follow browser language</option>
-            <option value="en">English</option>
-            <option value="tr">Türkçe</option>
-          </select>
-        </span>
-      </div>
-    </section>
-
-    <section class="kart bolum" aria-labelledby="hesapBaslik">
-      <h2 id="hesapBaslik" data-i18n="hesaplar">Accounts</h2>
-      <table id="hesapTablo">
-        <thead><tr>
-          <th data-i18n="tabloServis">Service</th>
-          <th data-i18n="tabloHesap">Account</th>
-          <th data-i18n="tabloTur">Type</th>
-          <th></th>
-        </tr></thead>
-        <tbody></tbody>
-      </table>
-      <p id="hesapBos" class="ipucu" hidden data-i18n="kayitliHesapYok">No saved accounts.</p>
-    </section>
+      </section>
+    </div>
 
   </div>
 </main>

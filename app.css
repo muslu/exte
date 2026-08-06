@@ -108,6 +108,12 @@ body.popup { width: 360px; min-height: 200px; max-height: 560px; display: flex; 
 
 /* ---------- ayarlar sayfası ---------- */
 body.sayfa { max-width: 720px; margin: 0 auto; padding: 1.2rem 1rem 3rem; }
+
+/* Sekme şeridi sayfa kaydırılırken üstte kalır; dar pencerede yatay kayar. */
+body.sayfa .sekmeler { position: sticky; top: 0; z-index: 3; background: var(--bg);
+  margin-bottom: 1rem; padding-top: .4rem; overflow-x: auto; scrollbar-width: thin; }
+body.sayfa .sekme { padding: .55rem .85rem; font-size: .95rem; white-space: nowrap; }
+body.sayfa [role="tabpanel"]:focus-visible { outline-offset: 4px; }
 .atla { position: absolute; left: -9999px; }
 .atla:focus { position: static; display: inline-block; margin-bottom: .5rem; }
 .bolum { margin-bottom: 1.4rem; }
