@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>exte — 2FA Authenticator for Chrome</title>
+<meta name="description" content="Two-factor authentication codes in your browser. No account, no server, no network permission.">
+<link rel="icon" href="icons/128.png">
+<style>
+  :root { color-scheme: light dark;
+    --bg:#ffffff; --metin:#1a2233; --mute:#5a6478; --kenar:#d3d9e6; --marka:#1f6feb;
+    --kod-bg:#f4f6fb; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0d1117; --metin:#e6edf3; --mute:#9aa4b2; --kenar:#2a323d; --marka:#4d90fe;
+      --kod-bg:#161b22; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0 auto; max-width:44rem; padding:2.5rem 1.25rem 5rem;
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif; line-height:1.65;
+    background:var(--bg); color:var(--metin); }
+  h1,h2,h3 { line-height:1.25; margin:2rem 0 .75rem; }
+  h1 { margin-top:0; font-size:2rem; letter-spacing:-.02em; }
+  h2 { font-size:1.3rem; border-bottom:1px solid var(--kenar); padding-bottom:.3rem; }
+  a { color:var(--marka); }
+  a:focus-visible { outline:3px solid var(--marka); outline-offset:2px; }
+  code { background:var(--kod-bg); padding:.12em .35em; border-radius:4px; font-size:.92em; }
+  pre { background:var(--kod-bg); padding:.9rem 1rem; border-radius:10px; overflow-x:auto; }
+  pre code { background:none; padding:0; }
+  table { width:100%; border-collapse:collapse; margin:1rem 0; display:block; overflow-x:auto; }
+  th,td { text-align:left; padding:.45rem .6rem; border-bottom:1px solid var(--kenar); }
+  th { color:var(--mute); }
+  img { max-width:100%; height:auto; border-radius:10px; }
+  blockquote { margin:1rem 0; padding:.6rem 1rem; border-left:4px solid var(--marka);
+    background:var(--kod-bg); border-radius:0 8px 8px 0; }
+  nav { margin-bottom:2rem; font-size:.92rem; }
+  nav a { margin-right:1rem; }
+  footer { margin-top:3.5rem; padding-top:1rem; border-top:1px solid var(--kenar);
+    color:var(--mute); font-size:.88rem; }
+</style>
+</head>
+<body>
+<nav><a href="index.html">Home</a><a href="privacy.html">Privacy</a>
+<a href="https://github.com/muslu/exte">GitHub</a></nav>
+<h1>exte — 2FA Authenticator for Chrome</h1>
+<p>Two-factor authentication codes in your browser. No account, no server, <strong>no network
+permission</strong> — your secrets never leave your device.</p>
+<p><a href="https://github.com/muslu/exte/blob/main/LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg" /></a>
+<img alt="Manifest V3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-brightgreen" />
+<img alt="No build step" src="https://img.shields.io/badge/build-none-lightgrey" /></p>
+<p align="center">
+  <img src="ekran/1-kodlar.png" alt="exte popup showing 2FA codes" width="640">
+</p>
+
+<h2>Features</h2>
+<ul>
+<li><strong>TOTP and HOTP</strong> — SHA-1 / SHA-256 / SHA-512, 6–8 digits, 30 or 60 second periods</li>
+<li><strong>One click to copy</strong> — every card shows the remaining time as a bar</li>
+<li><strong>Four ways to add an account</strong></li>
+<li>scan a QR code visible on screen</li>
+<li>pick a QR image file, or paste one from the clipboard</li>
+<li>paste an <code>otpauth://</code> link</li>
+<li>enter it manually</li>
+<li><strong>Encrypted backup</strong> — password-protected export (PBKDF2-SHA256 + AES-256-GCM)</li>
+<li><strong><code>otpauth://</code> list export</strong> (<code>.txt</code>) — compatible with other authenticator apps</li>
+<li><strong>Import from Google Authenticator</strong> — reads the "Transfer accounts" QR code directly</li>
+<li><strong>Optional password lock</strong> with idle auto-lock</li>
+<li><strong>English and Turkish</strong> UI, light and dark theme</li>
+</ul>
+<h2>Install</h2>
+<p>Not on the Chrome Web Store yet. To run it now:</p>
+<ol>
+<li>Download this repository (or the latest <code>exte-*-paylas.zip</code> from Releases) and unzip it</li>
+<li>Open <code>chrome://extensions</code></li>
+<li>Turn on <strong>Developer mode</strong> (top right)</li>
+<li>Click <strong>Load unpacked</strong> and select the <code>exte</code> folder</li>
+<li>Click the 🔒 icon in the toolbar</li>
+</ol>
+<h2>Migrating from Google Authenticator</h2>
+<p>On your phone: <strong>Google Authenticator → ⋮ → Transfer accounts → Export accounts</strong>, select the
+accounts, and a QR code appears. Get that QR onto your computer as an image (a screenshot, or a
+photo taken with another camera — both work).</p>
+<p>Then: extension icon → <strong>⚙</strong> → <em>Import from Google Authenticator</em> → <strong>Choose QR image…</strong></p>
+<p>With many accounts Google splits the export into several QR codes. exte tells you which part it
+just read (<code>part 1 of 3</code>) so you can load the rest.</p>
+<h2>Back up</h2>
+<p>If you lose your browser profile without a backup, or forget your lock password, your accounts
+cannot be recovered.</p>
+<p><strong>⚙ → Export → enter a password → Download encrypted JSON.</strong> Keep the file somewhere safe.</p>
+<p>The <code>.txt</code> export is <strong>not encrypted</strong> — it contains your secret keys in plain text. Use it only
+to move accounts into another app, then delete it.</p>
+<h2>Privacy</h2>
+<p>The extension declares no <code>host_permissions</code> and contains no network calls, so it cannot send
+your data anywhere even if it wanted to. Full policy: <a href="privacy.html">PRIVACY.md</a>.</p>
+<p>Permissions requested:</p>
+<table>
+<thead>
+<tr>
+<th>Permission</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>storage</code></td>
+<td>Keeps your accounts and settings on your device</td>
+</tr>
+<tr>
+<td><code>activeTab</code></td>
+<td>Only when you click "Scan from screen", to read the QR code from the visible tab</td>
+</tr>
+<tr>
+<td><code>clipboardWrite</code></td>
+<td>Copies the code you click to your clipboard</td>
+</tr>
+</tbody>
+</table>
+<h2>Verification</h2>
+<p>The TOTP/HOTP engine is checked against the official test vectors from <strong>RFC 4226 Appendix D</strong>
+and <strong>RFC 6238 Appendix B</strong> (SHA-1, SHA-256 and SHA-512). The QR path, the Google Authenticator
+protobuf decoder, the encrypted backup round-trip and the password-lock flow all have tests too.</p>
+<pre><code class="language-bash">node --test tests/     # 26 tests, no dependencies to install
+</code></pre>
+<h2>Development</h2>
+<p>No build step, no npm, no bundler — the folder you clone is the extension that runs.
+See <a href="https://github.com/muslu/exte/blob/main/DEVELOPMENT.md">DEVELOPMENT.md</a> for the architecture, the deliberate design decisions
+and the pitfalls worth knowing before changing anything.</p>
+<h2>License</h2>
+<p><a href="https://github.com/muslu/exte/blob/main/LICENSE">MIT</a>. Bundles <a href="https://github.com/cozmo/jsQR">jsQR</a> (MIT) for QR decoding.</p>
+<footer>exte — 2FA Authenticator · <a href="https://github.com/muslu/exte">source on GitHub</a> · MIT</footer>
+</body>
+</html>

@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "__MSG_ad__",
+  "version": "1.0.0",
+  "description": "__MSG_aciklama__",
+  "default_locale": "en",
+  "minimum_chrome_version": "116",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "clipboardWrite"
+  ],
+  "action": {
+    "default_title": "__MSG_ad__",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/16.png",
+      "32": "icons/32.png",
+      "48": "icons/48.png",
+      "128": "icons/128.png"
+    }
+  },
+  "options_ui": {
+    "page": "ayarlar.html",
+    "open_in_tab": true
+  },
+  "icons": {
+    "16": "icons/16.png",
+    "32": "icons/32.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  }
+}

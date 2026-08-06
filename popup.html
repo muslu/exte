@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title data-i18n-baslik="uzantiAdi">exte — Authenticator</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="popup">
+
+<header class="ust">
+  <input type="search" id="ara" placeholder="Search…" data-i18n-ph="ara" data-i18n-aria="araAria"
+         aria-label="Search accounts" autocomplete="off">
+  <button type="button" id="ekleAc" class="duz dar" data-i18n-aria="hesapEkle" data-i18n-title="hesapEkle"
+          aria-label="Add account" title="Add account">＋</button>
+  <button type="button" id="ayarlarAc" class="duz dar" data-i18n-aria="ayarlarAc" data-i18n-title="ayarlarAc"
+          aria-label="Settings and backup" title="Settings and backup">⚙</button>
+</header>
+
+<main class="govde">
+
+  <!-- kilit ekranı -->
+  <section id="gorunumKilit" hidden aria-labelledby="kilitBaslik">
+    <h1 id="kilitBaslik" data-i18n="kilitli">Locked</h1>
+    <p class="ipucu" data-i18n="kilitIpucu">Enter your password to see your accounts.</p>
+    <form id="kilitForm">
+      <div class="alan">
+        <label for="kilitParola" data-i18n="parola">Password</label>
+        <input type="password" id="kilitParola" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="birincil" data-i18n="kilidiAc">Unlock</button>
+      <p id="kilitHata" class="ipucu hata-metin" role="alert"></p>
+    </form>
+  </section>
+
+  <!-- hesap listesi -->
+  <section id="gorunumListe" aria-labelledby="listeBaslik">
+    <h1 id="listeBaslik" class="atla" data-i18n="hesaplar">Accounts</h1>
+    <div id="liste"></div>
+    <p id="bos" class="bos" hidden>
+      <span data-i18n="hesapYokMesaj">No accounts yet.</span><br><br>
+      <button type="button" id="bosEkle" class="birincil" data-i18n="ilkHesabiEkle">Add your first account</button>
+    </p>
+  </section>
+
+  <!-- hesap ekleme -->
+  <section id="gorunumEkle" hidden aria-labelledby="ekleBaslik">
+    <h1 id="ekleBaslik" data-i18n="hesapEkle">Add account</h1>
+
+    <div class="sekmeler" role="tablist" data-i18n-aria="eklemeYontemi" aria-label="Add method">
+      <button type="button" class="sekme" role="tab" id="sekQr"  aria-selected="true"  aria-controls="panelQr"  data-i18n="sekmeQr">QR</button>
+      <button type="button" class="sekme" role="tab" id="sekUri" aria-selected="false" aria-controls="panelUri" data-i18n="sekmeBaglanti">Link</button>
+      <button type="button" class="sekme" role="tab" id="sekEl"  aria-selected="false" aria-controls="panelEl"  data-i18n="sekmeElle">Manual</button>
+    </div>
+
+    <div id="panelQr" role="tabpanel" aria-labelledby="sekQr">
+      <p class="ipucu" data-i18n="qrIpucu">Scan the QR code while it is visible on screen, or read it from an image file.</p>
+      <button type="button" id="qrEkran" class="birincil" data-i18n="qrEkrandanTara">Scan from screen</button>
+      <button type="button" id="qrDosyaAc" data-i18n="qrResimdenOku">Read from image</button>
+      <input type="file" id="qrDosya" accept="image/*" hidden>
+      <p class="ipucu" data-i18n="qrPanoIpucu">You can also paste a QR image into this window with Ctrl+V.</p>
+      <p id="qrDurum" class="ipucu" role="status"></p>
+    </div>
+
+    <div id="panelUri" role="tabpanel" aria-labelledby="sekUri" hidden>
+      <form id="uriForm">
+        <div class="alan">
+          <label for="uriMetin" data-i18n="baglantiEtiket">otpauth:// link</label>
+          <input type="text" id="uriMetin" placeholder="otpauth://totp/…" required>
+        </div>
+        <button type="submit" class="birincil" data-i18n="ekle">Add</button>
+      </form>
+    </div>
+
+    <div id="panelEl" role="tabpanel" aria-labelledby="sekEl" hidden>
+      <form id="elForm">
+        <div class="alan">
+          <label for="elAd" data-i18n="hesapAdi">Account name</label>
+          <input type="text" id="elAd" required placeholder="you@example.com">
+        </div>
+        <div class="alan">
+          <label for="elIssuer" data-i18n="servis">Service (optional)</label>
+          <input type="text" id="elIssuer" placeholder="GitHub">
+        </div>
+        <div class="alan">
+          <label for="elGizli" data-i18n="gizliAnahtar">Secret key (Base32)</label>
+          <input type="text" id="elGizli" required autocomplete="off" spellcheck="false" placeholder="JBSWY3DPEHPK3PXP">
+        </div>
+        <div class="satir alan">
+          <span><label for="elTip" data-i18n="tur">Type</label>
+            <select id="elTip">
+              <option value="totp" data-i18n="totpSecenek">TOTP (time-based)</option>
+              <option value="hotp" data-i18n="hotpSecenek">HOTP (counter-based)</option>
+            </select>
+          </span>
+          <span><label for="elAlgo" data-i18n="algoritma">Algorithm</label>
+            <select id="elAlgo"><option>SHA1</option><option>SHA256</option><option>SHA512</option></select>
+          </span>
+        </div>
+        <div class="satir alan">
+          <span><label for="elHane" data-i18n="hane">Digits</label>
+            <select id="elHane"><option>6</option><option>8</option></select>
+          </span>
+          <span><label for="elPeriyot" data-i18n="periyot">Period (s)</label>
+            <input type="number" id="elPeriyot" value="30" min="1" max="300">
+          </span>
+        </div>
+        <button type="submit" class="birincil" data-i18n="ekle">Add</button>
+      </form>
+    </div>
+
+    <p><button type="button" id="ekleKapat" class="duz" data-i18n="listeyeDon">← Back to list</button></p>
+    <p id="ekleHata" class="ipucu hata-metin" role="alert"></p>
+  </section>
+
+</main>
+
+<p id="canliDurum" class="atla" role="status" aria-live="polite"></p>
+
+<script src="vendor/jsQR.js"></script>
+<script type="module" src="popup.js"></script>
+</body>
+</html>

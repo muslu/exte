@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title data-i18n-baslik="ayarlarBaslik">exte — Settings and backup</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="sayfa">
+
+<a href="#icerik" class="atla" data-i18n="icerigeAtla">Skip to content</a>
+<h1 data-i18n="ayarlarBaslik">exte — Settings and backup</h1>
+<p class="ipucu" id="ozet" data-i18n="yukleniyor">Loading…</p>
+
+<main id="icerik">
+
+  <!-- kilitliyse önce parola -->
+  <section class="kart bolum" id="kilitKart" hidden aria-labelledby="kilitBaslik">
+    <h2 id="kilitBaslik" data-i18n="kilitli">Locked</h2>
+    <form id="kilitForm">
+      <div class="alan">
+        <label for="kilitParola" data-i18n="parola">Password</label>
+        <input type="password" id="kilitParola" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="birincil" data-i18n="kilidiAc">Unlock</button>
+      <p id="kilitHata" class="ipucu hata-metin" role="alert"></p>
+    </form>
+  </section>
+
+  <div id="anaIcerik">
+
+    <section class="kart bolum" aria-labelledby="disaBaslik">
+      <h2 id="disaBaslik" data-i18n="disaAktar">Export</h2>
+      <form id="disaForm">
+        <div class="alan">
+          <label for="disaParola" data-i18n="yedekParolasi">Backup password (at least 6 characters)</label>
+          <input type="password" id="disaParola" autocomplete="new-password"
+                 data-i18n-ph="yedekParolaIpucu" placeholder="Encrypts the backup file">
+        </div>
+        <button type="submit" class="birincil" data-i18n="sifreliIndir">Download encrypted JSON</button>
+        <button type="button" id="disaTxt" class="tehlike" data-i18n="sifresizIndir">Download unencrypted .txt</button>
+      </form>
+      <p class="uyari-kutu" style="margin-top:.7rem" data-i18n-html="txtUyari"></p>
+      <p id="disaDurum" class="durum" role="status"></p>
+    </section>
+
+    <section class="kart bolum" aria-labelledby="iceBaslik">
+      <h2 id="iceBaslik" data-i18n="iceAktar">Import</h2>
+      <p class="ipucu" data-i18n-html="iceAktarIpucu"></p>
+      <div class="alan">
+        <label for="iceParola" data-i18n="yedekParolasiIce">Backup password (for encrypted JSON)</label>
+        <input type="password" id="iceParola" autocomplete="current-password">
+      </div>
+      <button type="button" id="iceDosyaAc" class="birincil" data-i18n="dosyaSec">Choose file…</button>
+      <input type="file" id="iceDosya" accept=".json,.txt,application/json,text/plain" hidden>
+      <p id="iceDurum" class="durum" role="status"></p>
+    </section>
+
+    <section class="kart bolum" aria-labelledby="gocBaslik">
+      <h2 id="gocBaslik" data-i18n="gocBaslik">Import from Google Authenticator</h2>
+      <p class="ipucu" data-i18n-html="gocIpucu"></p>
+      <button type="button" id="gocDosyaAc" class="birincil" data-i18n="gocResimSec">Choose QR image…</button>
+      <input type="file" id="gocDosya" accept="image/*" hidden>
+      <div class="alan" style="margin-top:.7rem">
+        <label for="gocMetin" data-i18n-html="gocBaglantiEtiket"></label>
+        <input type="text" id="gocMetin" placeholder="otpauth-migration://offline?data=…">
+      </div>
+      <button type="button" id="gocEkle" data-i18n="gocBaglantidanAktar">Import from link</button>
+      <p id="gocDurum" class="durum" role="status"></p>
+    </section>
+
+    <section class="kart bolum" aria-labelledby="kilitAyarBaslik">
+      <h2 id="kilitAyarBaslik" data-i18n="parolaKilidi">Password lock</h2>
+      <p class="ipucu" id="kilitAciklama"></p>
+
+      <form id="kurForm" hidden>
+        <div class="alan">
+          <label for="kurParola" data-i18n="yeniParola">New password (at least 6 characters)</label>
+          <input type="password" id="kurParola" autocomplete="new-password" required>
+        </div>
+        <div class="alan">
+          <label for="kurParola2" data-i18n="parolaTekrar">Password (again)</label>
+          <input type="password" id="kurParola2" autocomplete="new-password" required>
+        </div>
+        <button type="submit" class="birincil" data-i18n="kilidiKur">Enable lock</button>
+        <p class="ipucu" data-i18n="kilitUyari">If you forget your password your accounts cannot be recovered — take a backup first.</p>
+      </form>
+
+      <form id="kaldirForm" hidden>
+        <div class="alan">
+          <label for="kaldirParola" data-i18n="mevcutParola">Current password</label>
+          <input type="password" id="kaldirParola" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="tehlike" data-i18n="kilidiKaldir">Remove lock</button>
+      </form>
+
+      <div class="alan" style="margin-top:.9rem">
+        <label for="otoKilit" data-i18n="otomatikKilit">Auto-lock</label>
+        <select id="otoKilit">
+          <option value="0">Off</option>
+          <option value="5">5 min</option>
+          <option value="15">15 min</option>
+          <option value="60">1 hour</option>
+        </select>
+      </div>
+      <p id="kilitAyarDurum" class="durum" role="status"></p>
+    </section>
+
+    <section class="kart bolum" aria-labelledby="gorunumBaslik">
+      <h2 id="gorunumBaslik" data-i18n="gorunum">Appearance</h2>
+      <div class="satir">
+        <span>
+          <label for="tema" data-i18n="tema">Theme</label>
+          <select id="tema">
+            <option value="auto" data-i18n="temaAuto">Follow system setting</option>
+            <option value="light" data-i18n="temaAcik">Light</option>
+            <option value="dark" data-i18n="temaKoyu">Dark</option>
+          </select>
+        </span>
+        <span>
+          <label for="dil" data-i18n="dil">Language</label>
+          <select id="dil">
+            <option value="auto" data-i18n="dilAuto">Follow browser language</option>
+            <option value="en">English</option>
+            <option value="tr">Türkçe</option>
+          </select>
+        </span>
+      </div>
+    </section>
+
+    <section class="kart bolum" aria-labelledby="hesapBaslik">
+      <h2 id="hesapBaslik" data-i18n="hesaplar">Accounts</h2>
+      <table id="hesapTablo">
+        <thead><tr>
+          <th data-i18n="tabloServis">Service</th>
+          <th data-i18n="tabloHesap">Account</th>
+          <th data-i18n="tabloTur">Type</th>
+          <th></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+      <p id="hesapBos" class="ipucu" hidden data-i18n="kayitliHesapYok">No saved accounts.</p>
+    </section>
+
+  </div>
+</main>
+
+<p id="canliDurum" class="atla" role="status" aria-live="polite"></p>
+
+<script src="vendor/jsQR.js"></script>
+<script type="module" src="ayarlar.js"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+# Build artefacts — produced by tools/paketle.sh, published via Releases
+*.zip
+*.crx
+*.pem
+
+# Backup files contain 2FA secrets — never commit one
+*exte-yedek*.json
+*exte-yedek*.txt
+
+__pycache__/
+*.py[cod]
+.venv/
+.idea/
+.DS_Store
+node_modules/

@@ -1,0 +1,10 @@
+{
+  "ad": {
+    "message": "exte — 2FA Authenticator with encrypted backup",
+    "description": "Extension name shown in Chrome and the Web Store"
+  },
+  "aciklama": {
+    "message": "Get your two-factor codes right in Chrome. Import your Google Authenticator accounts, scan QR codes, keep an encrypted backup.",
+    "description": "Short description shown in the Web Store"
+  }
+}

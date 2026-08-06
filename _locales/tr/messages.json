@@ -1,0 +1,10 @@
+{
+  "ad": {
+    "message": "exte — 2FA Kimlik Doğrulayıcı, şifreli yedekli",
+    "description": "Chrome ve mağazada görünen eklenti adı"
+  },
+  "aciklama": {
+    "message": "İki adımlı doğrulama kodlarını doğrudan Chrome'da üret. Google Authenticator hesaplarını içe aktar, QR tara, şifreli yedek al.",
+    "description": "Mağazada görünen kısa açıklama"
+  }
+}

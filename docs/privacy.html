@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — exte</title>
+<meta name="description" content="exte collects, stores and transmits no data. The extension has no network permission.">
+<link rel="icon" href="icons/128.png">
+<style>
+  :root { color-scheme: light dark;
+    --bg:#ffffff; --metin:#1a2233; --mute:#5a6478; --kenar:#d3d9e6; --marka:#1f6feb;
+    --kod-bg:#f4f6fb; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0d1117; --metin:#e6edf3; --mute:#9aa4b2; --kenar:#2a323d; --marka:#4d90fe;
+      --kod-bg:#161b22; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0 auto; max-width:44rem; padding:2.5rem 1.25rem 5rem;
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif; line-height:1.65;
+    background:var(--bg); color:var(--metin); }
+  h1,h2,h3 { line-height:1.25; margin:2rem 0 .75rem; }
+  h1 { margin-top:0; font-size:2rem; letter-spacing:-.02em; }
+  h2 { font-size:1.3rem; border-bottom:1px solid var(--kenar); padding-bottom:.3rem; }
+  a { color:var(--marka); }
+  a:focus-visible { outline:3px solid var(--marka); outline-offset:2px; }
+  code { background:var(--kod-bg); padding:.12em .35em; border-radius:4px; font-size:.92em; }
+  pre { background:var(--kod-bg); padding:.9rem 1rem; border-radius:10px; overflow-x:auto; }
+  pre code { background:none; padding:0; }
+  table { width:100%; border-collapse:collapse; margin:1rem 0; display:block; overflow-x:auto; }
+  th,td { text-align:left; padding:.45rem .6rem; border-bottom:1px solid var(--kenar); }
+  th { color:var(--mute); }
+  img { max-width:100%; height:auto; border-radius:10px; }
+  blockquote { margin:1rem 0; padding:.6rem 1rem; border-left:4px solid var(--marka);
+    background:var(--kod-bg); border-radius:0 8px 8px 0; }
+  nav { margin-bottom:2rem; font-size:.92rem; }
+  nav a { margin-right:1rem; }
+  footer { margin-top:3.5rem; padding-top:1rem; border-top:1px solid var(--kenar);
+    color:var(--mute); font-size:.88rem; }
+</style>
+</head>
+<body>
+<nav><a href="index.html">Home</a><a href="privacy.html">Privacy</a>
+<a href="https://github.com/muslu/exte">GitHub</a></nav>
+<h1>exte — Privacy Policy</h1>
+<p><strong>Last updated:</strong> 6 August 2026 · <strong>Applies to version:</strong> 1.0.0</p>
+<h2>Summary</h2>
+<p>exte does not collect, store, or transmit any data to anyone. The extension has <strong>no network
+permission</strong> and therefore cannot contact any server. Everything you enter stays in your own
+browser.</p>
+<h2>What data is handled</h2>
+<p>You do not need an account, a sign-in, or any personal information to use this extension.
+Only the following, all of which <strong>you</strong> enter, is stored <strong>on your device</strong>:</p>
+<ul>
+<li>The name and issuer (service) of each 2FA account</li>
+<li>The shared secret needed to generate verification codes</li>
+<li>Technical fields such as algorithm, digit count, period, and counter</li>
+<li>Your theme preference and password-lock settings</li>
+</ul>
+<p>This data lives in your browser's <code>chrome.storage.local</code> area. If you enable the optional
+password lock, the secrets are encrypted with <strong>AES-256-GCM</strong> using a key derived from your
+password with PBKDF2-SHA256 (310,000 iterations).</p>
+<h2>Where the data goes</h2>
+<p><strong>Nowhere.</strong> The extension manifest declares no <code>host_permissions</code>, and the code contains no
+network calls (<code>fetch</code>, <code>XMLHttpRequest</code>, WebSocket). This is enforced by the browser — even
+if the extension wanted to send data, it could not.</p>
+<p>There is no data sale, no sharing with third parties, no advertising, no analytics, no
+cookies, and no telemetry.</p>
+<h2>Why each permission is requested</h2>
+<table>
+<thead>
+<tr>
+<th>Permission</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>storage</code></td>
+<td>To keep your accounts and settings on your device</td>
+</tr>
+<tr>
+<td><code>activeTab</code></td>
+<td>Only when you click "Scan from screen": to capture the active tab so the QR code on screen can be decoded. The image is processed in memory and never stored</td>
+</tr>
+<tr>
+<td><code>clipboardWrite</code></td>
+<td>To copy the verification code you click to your clipboard</td>
+</tr>
+</tbody>
+</table>
+<h2>Chrome sync</h2>
+<p>Data is kept in <code>chrome.storage.local</code> and is <strong>not</strong> included in Chrome account
+synchronisation; it is not copied to your other devices automatically. To move to another
+device, use the extension's built-in encrypted backup.</p>
+<h2>Deleting your data</h2>
+<p>When you remove the extension, Chrome deletes all of its storage. You can also delete
+individual accounts from within the extension. Deleted data cannot be recovered.</p>
+<h2>Your responsibility for backup files</h2>
+<p>Backup files you export are under your own control:</p>
+<ul>
+<li><strong>Encrypted JSON</strong> — protected by your password; if you forget it, the file cannot be decrypted.</li>
+<li><strong><code>.txt</code> (otpauth list)</strong> — <strong>not encrypted</strong>; it contains your secrets in plain text. Use it
+  only to move accounts to another application, then delete it.</li>
+</ul>
+<h2>Changes</h2>
+<p>If this policy changes, this page is updated together with the new version and the
+"Last updated" date is changed.</p>
+<h2>Contact</h2>
+<p>muslu.yuksektepe@makdos.com</p>
+<footer>exte — 2FA Authenticator · <a href="https://github.com/muslu/exte">source on GitHub</a> · MIT</footer>
+</body>
+</html>

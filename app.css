@@ -1,0 +1,117 @@
+/* exte — tek stylesheet. Token seti callcenter/panel/static/app.css ile aynı. */
+:root {
+  --bg: #f4f6fb; --yuzey: #ffffff; --kenar: #d3d9e6; --metin: #1a2233;
+  --mute: #5a6478; --marka: #1f6feb; --marka-metin: #ffffff;
+  --ok: #17794f; --hata: #c0362c; --uyari: #8a5a00;
+  --golge: 0 1px 3px rgba(20,30,60,.10), 0 4px 16px rgba(20,30,60,.06);
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --yuzey:#161b22; --kenar:#2a323d; --metin:#e6edf3;
+    --mute:#9aa4b2; --marka:#4d90fe; --marka-metin:#0d1117;
+    --ok:#3fb950; --hata:#ff7b72; --uyari:#e3b341;
+    --golge: 0 1px 3px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.3);
+  }
+}
+/* Elle seçim otomatik tercihi ezer. --marka-metin koyu temada KOYU olmalı:
+   açık mavi zemin üstünde beyaz metin 2.5:1'e düşer (WCAG AA ihlali). */
+:root[data-theme="dark"] {
+  --bg:#0d1117; --yuzey:#161b22; --kenar:#2a323d; --metin:#e6edf3;
+  --mute:#9aa4b2; --marka:#4d90fe; --marka-metin:#0d1117;
+  --ok:#3fb950; --hata:#ff7b72; --uyari:#e3b341;
+  --golge: 0 1px 3px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.3);
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0; background: var(--bg); color: var(--metin); line-height: 1.5;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; font-size: 14px;
+}
+h1, h2, h3 { margin: 0 0 .5rem; line-height: 1.25; }
+h1 { font-size: 1.15rem; } h2 { font-size: 1rem; } h3 { font-size: .95rem; }
+a { color: var(--marka); }
+:focus-visible { outline: 3px solid var(--marka); outline-offset: 2px; border-radius: 4px; }
+
+/* ---------- düğmeler / alanlar ---------- */
+button, .dugme {
+  font: inherit; cursor: pointer; border: 1px solid var(--kenar); border-radius: var(--r);
+  background: var(--yuzey); color: var(--metin); padding: .5rem .8rem;
+}
+button:hover { border-color: var(--marka); }
+button:disabled { opacity: .55; cursor: not-allowed; }
+.birincil { background: var(--marka); color: var(--marka-metin); border-color: var(--marka); font-weight: 600; }
+.tehlike { color: var(--hata); border-color: color-mix(in srgb, var(--hata) 40%, var(--kenar)); }
+.duz { background: none; border-color: transparent; padding: .35rem .5rem; }
+
+input, select {
+  font: inherit; width: 100%; padding: .5rem .6rem; border-radius: var(--r);
+  border: 1px solid var(--kenar); background: var(--yuzey); color: var(--metin);
+}
+label { display: block; font-size: .82rem; color: var(--mute); margin-bottom: .2rem; }
+.alan { margin-bottom: .7rem; }
+.satir { display: flex; gap: .5rem; align-items: center; }
+.satir > * { flex: 1; }
+.satir > .dar { flex: 0 0 auto; }
+
+.kart { background: var(--yuzey); border: 1px solid var(--kenar); border-radius: var(--r);
+  box-shadow: var(--golge); padding: .9rem; margin-bottom: .8rem; }
+.ipucu { color: var(--mute); font-size: .82rem; margin: .25rem 0 0; }
+.uyari-kutu { border-left: 4px solid var(--uyari); background: color-mix(in srgb, var(--uyari) 10%, var(--yuzey));
+  padding: .6rem .8rem; border-radius: var(--r); font-size: .85rem; }
+.hata-metin { color: var(--hata); }
+.ok-metin { color: var(--ok); }
+
+/* ---------- popup ---------- */
+body.popup { width: 360px; min-height: 200px; max-height: 560px; display: flex; flex-direction: column; }
+.ust { display: flex; gap: .4rem; align-items: center; padding: .6rem; border-bottom: 1px solid var(--kenar);
+  background: var(--yuzey); position: sticky; top: 0; z-index: 2; }
+.ust input[type="search"] { flex: 1; }
+.govde { flex: 1; overflow-y: auto; padding: .6rem; }
+
+.hesap {
+  display: grid; grid-template-columns: 1fr auto; gap: .2rem .5rem; align-items: center;
+  background: var(--yuzey); border: 1px solid var(--kenar); border-radius: var(--r);
+  padding: .6rem .7rem; margin-bottom: .5rem; box-shadow: var(--golge);
+}
+.hesap:hover { border-color: var(--marka); }
+.hesap .baslik { grid-column: 1; font-size: .8rem; color: var(--mute);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hesap .kod {
+  grid-column: 1; grid-row: 2; font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 1.5rem; font-weight: 600; letter-spacing: .08em; background: none; border: none;
+  padding: 0; text-align: left; color: var(--metin); cursor: pointer;
+}
+.hesap .kod:hover { color: var(--marka); }
+.hesap .araclar { grid-column: 2; grid-row: 1 / span 2; display: flex; gap: .2rem; align-items: center; }
+.hesap .cubuk { grid-column: 1 / -1; grid-row: 3; height: 4px; border-radius: 2px;
+  background: color-mix(in srgb, var(--kenar) 70%, transparent); overflow: hidden; margin-top: .35rem; }
+.hesap .cubuk > i { display: block; height: 100%; background: var(--marka); transition: width 1s linear; }
+.hesap.bitiyor .cubuk > i { background: var(--hata); }
+
+.bos { text-align: center; color: var(--mute); padding: 2rem 1rem; }
+
+/* ---------- sekmeler ---------- */
+.sekmeler { display: flex; gap: .3rem; margin-bottom: .8rem; border-bottom: 1px solid var(--kenar); }
+.sekme { background: none; border: none; border-bottom: 2px solid transparent; border-radius: 0;
+  padding: .45rem .6rem; color: var(--mute); }
+.sekme[aria-selected="true"] { color: var(--marka); border-bottom-color: var(--marka); font-weight: 600; }
+
+/* ---------- toast ---------- */
+.toast { position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%);
+  background: var(--metin); color: var(--bg); padding: .5rem .9rem; border-radius: var(--r);
+  box-shadow: var(--golge); font-size: .85rem; z-index: 10; animation: gir .18s ease-out; }
+@keyframes gir { from { opacity: 0; transform: translate(-50%, 8px); } }
+@media (prefers-reduced-motion: reduce) { .toast { animation: none; } .hesap .cubuk > i { transition: none; } }
+
+/* ---------- ayarlar sayfası ---------- */
+body.sayfa { max-width: 720px; margin: 0 auto; padding: 1.2rem 1rem 3rem; }
+.atla { position: absolute; left: -9999px; }
+.atla:focus { position: static; display: inline-block; margin-bottom: .5rem; }
+.bolum { margin-bottom: 1.4rem; }
+.durum { min-height: 1.4rem; font-size: .85rem; }
+table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+th, td { text-align: left; padding: .35rem .4rem; border-bottom: 1px solid var(--kenar); }
+th { color: var(--mute); font-weight: 600; }
