@@ -17,7 +17,8 @@ Serverless, with no network permission — all data stays in `chrome.storage`.
 | **No network permission** | `host_permissions` and `fetch` are deliberately absent, so there is no path by which a secret could leave the device — enforced by the browser, not by discipline. |
 | **No service worker** | Codes are generated while the popup is open; there is no background work. An MV3 service worker would be killed after 30 s anyway. |
 | **Session key in `chrome.storage.session`** | The popup loses its memory on every close and the service worker's memory dies too. `session` storage is cleared when the browser closes and is not readable by content scripts (TRUSTED_CONTEXTS). |
-| **Lock is optional** | Default off, so the extension works the moment it is installed. Turning it on moves the accounts into an encrypted `kasa` field and deletes the plain `hesaplar` field. |
+| **The password is mandatory, with no recovery** | The first run asks for a password before anything else; it is only ever fed to PBKDF2 and never stored, so there is nothing to reset. Setting it moves any accounts into the encrypted `kasa` field and deletes the plain `hesaplar` field. There is no "remove lock" path — only "change password", which re-encrypts the vault in place without writing plaintext to disk. |
+| **Re-locked on every popup open (default)** | `acilistaKilitle()` drops the session key when `otoKilitDk` is `HER_ACILIS` (`-1`), so clicking the toolbar icon always asks for the password. The settings page offers looser choices: once per browser session, the 5/15/60-minute presets, or any period the user types (1 minute – 30 days, stored as minutes in the same `otoKilitDk` field). `ayarlariOku()` rejects an out-of-range value and falls back to the strictest default, so a hand-edited `chrome.storage` entry cannot keep the vault unlocked forever. |
 | **jsQR is vendored** | MV3's CSP forbids remote code, so it cannot be loaded from a CDN. It is UMD, so it is loaded with a classic `<script>` tag and read from `globalThis.jsQR`. |
 | **Hand-written protobuf decoder** | Bundling a protobuf library for one message schema is overkill; ~90 lines of varint + length-delimited parsing is enough. |
 | **Options page is a full tab** | A popup can lose focus and close when a file picker opens. Backup and import live in `ayarlar.html`, where that cannot happen. |
@@ -38,7 +39,12 @@ Serverless, with no network permission — all data stays in `chrome.storage`.
 - **Codes are recomputed per period window, not per second** (the `pencere` field in the `kartlar`
   map). Only the progress bar updates every second.
 - **`hesaplariOku()` throws `KILITLI` while locked.** Callers must either check `kilitliMi()`
-  first or catch it and show the unlock screen.
+  first or catch it and show the unlock screen. It still reads the plain `hesaplar` field when no
+  password has been set — that path only exists so a 1.0.0 profile can be migrated into the vault
+  on first unlock; the UI gates it behind `kurulumGerekliMi()`.
+- **Two windows share one session key.** The settings tab listens on
+  `chrome.storage.session.onChanged` so that locking from the popup (or an expiry) also locks the
+  open tab, instead of leaving it showing decrypted accounts.
 - **MV3 CSP:** no inline `<script>` and no `onclick=`. All handlers are bound with
   `addEventListener`.
 - **QR rescan strategy:** on a miss, small images are retried at 2× and large screenshots are
@@ -66,15 +72,16 @@ Identifiers and comments are in Turkish; user-facing strings live in `src/metinl
 ## Tests
 
 ```bash
-node --test tests/          # 26 tests — no npm, Node 20's built-in runner + crypto.subtle
+node --test tests/          # 29 tests — no npm, Node 20's built-in runner + crypto.subtle
 ```
 
 - `otp.test.mjs` — every vector from RFC 4226 Appendix D and RFC 6238 Appendix B (SHA-1/256/512).
 - `goc.test.mjs` — the Google Authenticator protobuf fixture is **encoded independently in
   Python** (`tools/goc_fixture.py`), so the decoder is not validating its own output.
 - `yedek.test.mjs` — encrypted backup round-trip, wrong password, `.txt` parameter fidelity.
-- `depo.test.mjs` — a fake `chrome.storage` drives lock setup/unlock/removal, auto-lock and the
-  "no plaintext secret is left in storage" assertion.
+- `depo.test.mjs` — a fake `chrome.storage` drives first-run setup, unlock, password change,
+  the every-open re-lock, the idle auto-lock, the user-chosen custom period and the "no plaintext secret is left in storage"
+  assertion.
 - `qr.test.mjs` — the module matrix from `tools/qr_uret.py` is expanded to pixels and decoded by
   the **real vendored jsQR**, then fed through `uriCoz`/`gocCoz`. No image library needed.
 

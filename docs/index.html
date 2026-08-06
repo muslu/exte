@@ -63,7 +63,9 @@ permission</strong> — your secrets never leave your device.</p>
 <li><strong>Encrypted backup</strong> — password-protected export (PBKDF2-SHA256 + AES-256-GCM)</li>
 <li><strong><code>otpauth://</code> list export</strong> (<code>.txt</code>) — compatible with other authenticator apps</li>
 <li><strong>Import from Google Authenticator</strong> — reads the "Transfer accounts" QR code directly</li>
-<li><strong>Optional password lock</strong> with idle auto-lock</li>
+<li><strong>Password required</strong> — set on first run (PBKDF2-SHA256 310k + AES-256-GCM); no recovery,
+  by design. Asked for every time you open the extension, or after an idle period you choose
+  (up to 30 days)</li>
 <li><strong>English and Turkish</strong> UI, light and dark theme</li>
 </ul>
 <h2>Install</h2>
@@ -73,7 +75,8 @@ permission</strong> — your secrets never leave your device.</p>
 <li>Open <code>chrome://extensions</code></li>
 <li>Turn on <strong>Developer mode</strong> (top right)</li>
 <li>Click <strong>Load unpacked</strong> and select the <code>exte</code> folder</li>
-<li>Click the 🔒 icon in the toolbar</li>
+<li>Click the 🔒 icon in the toolbar and set your password — it is asked for on every open and
+   cannot be recovered, so pick one you will remember</li>
 </ol>
 <h2>Migrating from Google Authenticator</h2>
 <p>On your phone: <strong>Google Authenticator → ⋮ → Transfer accounts → Export accounts</strong>, select the
@@ -83,8 +86,8 @@ photo taken with another camera — both work).</p>
 <p>With many accounts Google splits the export into several QR codes. exte tells you which part it
 just read (<code>part 1 of 3</code>) so you can load the rest.</p>
 <h2>Back up</h2>
-<p>If you lose your browser profile without a backup, or forget your lock password, your accounts
-cannot be recovered.</p>
+<p>If you lose your browser profile without a backup, or forget the password you set on first run,
+your accounts cannot be recovered — there is no reset path, by design.</p>
 <p><strong>⚙ → Export → enter a password → Download encrypted JSON.</strong> Keep the file somewhere safe.</p>
 <p>The <code>.txt</code> export is <strong>not encrypted</strong> — it contains your secret keys in plain text. Use it only
 to move accounts into another app, then delete it.</p>
@@ -117,8 +120,9 @@ your data anywhere even if it wanted to. Full policy: <a href="privacy.html">PRI
 <h2>Verification</h2>
 <p>The TOTP/HOTP engine is checked against the official test vectors from <strong>RFC 4226 Appendix D</strong>
 and <strong>RFC 6238 Appendix B</strong> (SHA-1, SHA-256 and SHA-512). The QR path, the Google Authenticator
-protobuf decoder, the encrypted backup round-trip and the password-lock flow all have tests too.</p>
-<pre><code class="language-bash">node --test tests/     # 26 tests, no dependencies to install
+protobuf decoder, the encrypted backup round-trip and the password flow (setup, unlock, change,
+re-lock) all have tests too.</p>
+<pre><code class="language-bash">node --test tests/     # 29 tests, no dependencies to install
 </code></pre>
 <h2>Development</h2>
 <p>No build step, no npm, no bundler — the folder you clone is the extension that runs.

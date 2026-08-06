@@ -101,27 +101,65 @@ test("otomatik kilitlenme süresi dolunca oturum düşüyor", async () => {
   assert.equal(OTURUM.has("oturumAnahtari"), false, "süresi dolan anahtar silinmeli");
 });
 
-test("kilit kaldırma hesapları geri veriyor", async () => {
+test("her açılışta sor seçiliyken açılış oturumu düşürüyor", async () => {
+  await sifirla();
+  await depo.kilitKur("cokgizli");
+  assert.equal(await depo.kilitliMi(), false, "kurulumdan hemen sonra oturum açık");
+
+  await depo.acilistaKilitle(); // varsayılan ayar: HER_ACILIS
+  assert.equal(await depo.kilitliMi(), true, "uzantı her açıldığında parola sorulmalı");
+
+  await depo.ayarlariYaz({ otoKilitDk: 15 });
+  await depo.kilidiAc("cokgizli");
+  await depo.acilistaKilitle();
+  assert.equal(await depo.kilitliMi(), false, "süreli seçenekte açılış oturumu düşürmez");
+});
+
+test("kullanıcının girdiği özel süre doğrulanıp uygulanıyor", async () => {
   await sifirla();
   await depo.hesapEkle({ ad: "muslu", issuer: "GitHub", gizli: GIZLI });
   await depo.kilitKur("cokgizli");
-  await depo.kilitle();
 
-  await assert.rejects(() => depo.kilidiKaldir("yanlis"), /Wrong password/);
-  await depo.kilidiKaldir("cokgizli");
+  for (const gecersiz of [-2, 0.5, 43_201, "480", NaN, null])
+    await assert.rejects(() => depo.otoKilitYaz(gecersiz), /between 1 minute/);
 
-  assert.equal((await depo.kilitDurumu()).acik, false);
-  assert.equal(YEREL.has("kasa"), false);
-  assert.equal((await depo.hesaplariOku())[0].gizli, GIZLI);
+  await depo.otoKilitYaz(8 * 60); // 8 saat
+  assert.equal((await depo.ayarlariOku()).otoKilitDk, 480);
+
+  OTURUM.set("sonKullanim", Date.now() - 7 * 60 * 60_000); // 7 saat önce → süre dolmadı
+  assert.equal(await depo.kilitliMi(), false);
+
+  OTURUM.set("sonKullanim", Date.now() - 9 * 60 * 60_000); // 9 saat önce → süre doldu
+  assert.equal(await depo.kilitliMi(), true);
 });
 
-test("parola değiştirme", async () => {
+test("bozuk süre ayarı en katı varsayılana düşüyor", async () => {
+  await sifirla();
+  await depo.ayarlariYaz({ otoKilitDk: 15 });
+  YEREL.set("ayarlar", { ...YEREL.get("ayarlar"), otoKilitDk: 99_999 }); // elle bozulmuş
+  assert.equal((await depo.ayarlariOku()).otoKilitDk, depo.HER_ACILIS);
+});
+
+test("kurulum gerekliliği parola belirlenene kadar sürüyor", async () => {
+  await sifirla();
+  assert.equal(await depo.kurulumGerekliMi(), true);
+  await depo.kilitKur("cokgizli");
+  assert.equal(await depo.kurulumGerekliMi(), false);
+  await assert.rejects(() => depo.kilitKur("baskaparola"), /already been set/);
+});
+
+test("parola değiştirme kasayı yeniden şifreliyor, düz veri bırakmıyor", async () => {
   await sifirla();
   await depo.hesapEkle({ ad: "muslu", issuer: "GitHub", gizli: GIZLI });
   await depo.kilitKur("eskiparola");
-  await depo.parolaDegistir("eskiparola", "yeniparola");
-  await depo.kilitle();
 
+  await assert.rejects(() => depo.parolaDegistir("yanlisparola", "yeniparola"), /Wrong password/);
+  await depo.parolaDegistir("eskiparola", "yeniparola");
+
+  assert.equal(YEREL.has("hesaplar"), false, "değiştirme sırasında düz hesaplar yazılmamalı");
+  assert.ok(!JSON.stringify([...YEREL.entries()]).includes(GIZLI), "gizli anahtar depoda açık kalmamalı");
+
+  await depo.kilitle();
   await assert.rejects(() => depo.kilidiAc("eskiparola"), /Wrong password/);
   await depo.kilidiAc("yeniparola");
   assert.equal((await depo.hesaplariOku())[0].gizli, GIZLI);
@@ -130,4 +168,6 @@ test("parola değiştirme", async () => {
 test("kısa parola reddediliyor", async () => {
   await sifirla();
   await assert.rejects(() => depo.kilitKur("kisa"), /at least 6/);
+  await depo.kilitKur("cokgizli");
+  await assert.rejects(() => depo.parolaDegistir("cokgizli", "kisa"), /at least 6/);
 });

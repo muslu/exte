@@ -14,21 +14,55 @@ const durum = (secici, mesaj, tur = "") => {
   duyur(mesaj);
 };
 
-/** Otomatik kilit açılır kutusundaki seçenek metinlerini diline göre yazar. */
-function otoKilitSecenekleri() {
-  const secim = $("#otoKilit");
-  for (const secenek of secim.options) {
+/** Hazır seçenekler; bunların dışındaki her süre "özel" sayılır. */
+const SABIT_SURELER = [depo.HER_ACILIS, 0, 5, 15, 60];
+
+/** Dakikayı okunur süreye çevirir: 480 → "8 saat", 2880 → "2 gün". */
+const sureMetni = (dk) =>
+  dk % 1440 === 0 ? t("sureGun", dk / 1440) : dk % 60 === 0 ? t("sureSaat", dk / 60) : t("sureDk", dk);
+
+/** Parola sorma sıklığı kutusundaki seçenek metinlerini diline göre yazar. */
+function otoKilitSecenekleri(ozelDk = null) {
+  for (const secenek of $("#otoKilit").options) {
+    if (secenek.value === "ozel") {
+      secenek.textContent = ozelDk === null ? t("otoOzel") : t("otoOzelSecili", sureMetni(ozelDk));
+      continue;
+    }
     const dk = Number(secenek.value);
-    secenek.textContent = dk === 0 ? t("otoKapali") : dk === 60 ? t("otoSaat") : t("otoDk", dk);
+    secenek.textContent =
+      dk === depo.HER_ACILIS ? t("otoAcilis") : dk === 0 ? t("otoKapali") : dk === 60 ? t("otoSaat") : t("otoDk", dk);
   }
+  for (const secenek of $("#ozelBirim").options) {
+    secenek.textContent = { 1: t("birimDk"), 60: t("birimSaat"), 1440: t("birimGun") }[secenek.value];
+  }
+}
+
+/** Özel süre alanını dakikadan doldurur: en büyük tam bölen birimi seçer. */
+function ozelSureyiGoster(dk) {
+  const birim = dk % 1440 === 0 ? 1440 : dk % 60 === 0 ? 60 : 1;
+  $("#ozelBirim").value = String(birim);
+  $("#ozelSayi").value = String(dk / birim);
+  ozelSiniriGuncelle();
+}
+
+/** Seçili birime göre üst sınırı yazar — 30 gün = 720 saat = 43200 dakika. */
+function ozelSiniriGuncelle() {
+  $("#ozelSayi").max = String(depo.OTO_KILIT_MAKS_DK / Number($("#ozelBirim").value));
 }
 
 /* ---------------- ekran tazeleme ---------------- */
 
 async function tazele() {
-  const kilitli = await depo.kilitliMi();
+  const kurulum = await depo.kurulumGerekliMi();
+  const kilitli = !kurulum && (await depo.kilitliMi());
+  $("#kurulumKart").hidden = !kurulum;
   $("#kilitKart").hidden = !kilitli;
-  $("#anaIcerik").hidden = kilitli;
+  $("#anaIcerik").hidden = kurulum || kilitli;
+  if (kurulum) {
+    $("#ozet").textContent = t("kurulumOzet");
+    $("#kurulumParola").focus();
+    return;
+  }
   if (kilitli) {
     $("#ozet").textContent = t("kilitliOzet");
     $("#kilitParola").focus();
@@ -36,15 +70,16 @@ async function tazele() {
   }
 
   const hesaplar = await depo.hesaplariOku();
-  const kilit = await depo.kilitDurumu();
   const ayarlar = await depo.ayarlariOku();
 
-  $("#ozet").textContent = t("ozet", hesaplar.length, kilit.acik ? t("kilitAcikDurum") : t("kilitKapaliDurum"));
-  $("#kilitAciklama").textContent = kilit.acik ? t("kilitAcikAciklama") : t("kilitKapaliAciklama");
-  $("#kurForm").hidden = kilit.acik;
-  $("#kaldirForm").hidden = !kilit.acik;
-  $("#otoKilit").value = String(ayarlar.otoKilitDk);
-  $("#otoKilit").disabled = !kilit.acik;
+  $("#ozet").textContent = t("ozet", hesaplar.length);
+
+  const ozel = !SABIT_SURELER.includes(ayarlar.otoKilitDk);
+  otoKilitSecenekleri(ozel ? ayarlar.otoKilitDk : null);
+  $("#otoKilit").value = ozel ? "ozel" : String(ayarlar.otoKilitDk);
+  $("#ozelSureAlan").hidden = !ozel;
+  ozelSureyiGoster(ozel ? ayarlar.otoKilitDk : 30);
+
   $("#tema").value = ayarlar.tema;
   $("#dil").value = ayarlar.dil;
 
@@ -98,6 +133,21 @@ $("#kilitForm").addEventListener("submit", async (e) => {
     await tazele();
   } catch (err) {
     $("#kilitHata").textContent = err.message;
+  }
+});
+
+// --- ilk kurulum (parola hiç belirlenmemişse) ---
+$("#kurulumForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  $("#kurulumHata").textContent = "";
+  try {
+    if ($("#kurulumParola").value !== $("#kurulumParola2").value) throw new Error(t("parolalarEslesmiyor"));
+    await depo.kilitKur($("#kurulumParola").value);
+    $("#kurulumParola").value = $("#kurulumParola2").value = "";
+    toast(t("kilitKuruldu"));
+    await tazele();
+  } catch (err) {
+    $("#kurulumHata").textContent = err.message;
   }
 });
 
@@ -188,27 +238,14 @@ async function gocIsle(metin) {
   }
 }
 
-// --- parola kilidi ---
-$("#kurForm").addEventListener("submit", async (e) => {
+// --- parola değiştirme ---
+$("#degistirForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   try {
-    if ($("#kurParola").value !== $("#kurParola2").value) throw new Error(t("parolalarEslesmiyor"));
-    await depo.kilitKur($("#kurParola").value);
-    $("#kurParola").value = $("#kurParola2").value = "";
-    durum("#kilitAyarDurum", t("kilitKuruldu"), "ok");
-    await tazele();
-  } catch (err) {
-    durum("#kilitAyarDurum", err.message, "hata");
-  }
-});
-
-$("#kaldirForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  try {
-    if (!confirm(t("kilidiKaldirOnay"))) return;
-    await depo.kilidiKaldir($("#kaldirParola").value);
-    $("#kaldirParola").value = "";
-    durum("#kilitAyarDurum", t("kilitKaldirildi"), "ok");
+    if ($("#degistirYeni").value !== $("#degistirYeni2").value) throw new Error(t("parolalarEslesmiyor"));
+    await depo.parolaDegistir($("#degistirEski").value, $("#degistirYeni").value);
+    $("#degistirEski").value = $("#degistirYeni").value = $("#degistirYeni2").value = "";
+    durum("#kilitAyarDurum", t("parolaDegistirildi"), "ok");
     await tazele();
   } catch (err) {
     durum("#kilitAyarDurum", err.message, "hata");
@@ -216,8 +253,40 @@ $("#kaldirForm").addEventListener("submit", async (e) => {
 });
 
 $("#otoKilit").addEventListener("change", async (e) => {
-  await depo.ayarlariYaz({ otoKilitDk: Number(e.target.value) });
+  // "Özel" yalnızca alanı açar; süre Kaydet'e basılınca yazılır.
+  if (e.target.value === "ozel") {
+    $("#ozelSureAlan").hidden = false;
+    $("#ozelSayi").focus();
+    return;
+  }
+  $("#ozelSureAlan").hidden = true;
+  await depo.otoKilitYaz(Number(e.target.value));
   durum("#kilitAyarDurum", t("otoGuncellendi"), "ok");
+});
+
+$("#ozelBirim").addEventListener("change", ozelSiniriGuncelle);
+
+$("#ozelSayi").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    $("#ozelKaydet").click();
+  }
+});
+
+$("#ozelKaydet").addEventListener("click", async () => {
+  try {
+    const dk = Number($("#ozelSayi").value) * Number($("#ozelBirim").value);
+    await depo.otoKilitYaz(dk);
+    durum("#kilitAyarDurum", t("otoOzelKaydedildi", sureMetni(dk)), "ok");
+    await tazele();
+  } catch (err) {
+    durum("#kilitAyarDurum", err.message, "hata");
+  }
+});
+
+// Popup kilitlerse (ya da süre dolarsa) açık duran bu sekme de kilitlensin.
+chrome.storage.session.onChanged?.addListener(async (degisim) => {
+  if (depo.OTURUM_ANAHTAR in degisim && !degisim[depo.OTURUM_ANAHTAR].newValue) await tazele();
 });
 
 $("#tema").addEventListener("change", async (e) => {

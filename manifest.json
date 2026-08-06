@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_ad__",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "__MSG_aciklama__",
   "default_locale": "en",
   "minimum_chrome_version": "116",

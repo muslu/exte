@@ -23,7 +23,9 @@ permission** — your secrets never leave your device.
 - **Encrypted backup** — password-protected export (PBKDF2-SHA256 + AES-256-GCM)
 - **`otpauth://` list export** (`.txt`) — compatible with other authenticator apps
 - **Import from Google Authenticator** — reads the "Transfer accounts" QR code directly
-- **Optional password lock** with idle auto-lock
+- **Password required** — set on first run (PBKDF2-SHA256 310k + AES-256-GCM); no recovery,
+  by design. Asked for every time you open the extension, or after an idle period you choose
+  (up to 30 days)
 - **English and Turkish** UI, light and dark theme
 
 ## Install
@@ -34,7 +36,8 @@ Not on the Chrome Web Store yet. To run it now:
 2. Open `chrome://extensions`
 3. Turn on **Developer mode** (top right)
 4. Click **Load unpacked** and select the `exte` folder
-5. Click the 🔒 icon in the toolbar
+5. Click the 🔒 icon in the toolbar and set your password — it is asked for on every open and
+   cannot be recovered, so pick one you will remember
 
 ## Migrating from Google Authenticator
 
@@ -49,8 +52,8 @@ just read (`part 1 of 3`) so you can load the rest.
 
 ## Back up
 
-If you lose your browser profile without a backup, or forget your lock password, your accounts
-cannot be recovered.
+If you lose your browser profile without a backup, or forget the password you set on first run,
+your accounts cannot be recovered — there is no reset path, by design.
 
 **⚙ → Export → enter a password → Download encrypted JSON.** Keep the file somewhere safe.
 
@@ -74,10 +77,11 @@ Permissions requested:
 
 The TOTP/HOTP engine is checked against the official test vectors from **RFC 4226 Appendix D**
 and **RFC 6238 Appendix B** (SHA-1, SHA-256 and SHA-512). The QR path, the Google Authenticator
-protobuf decoder, the encrypted backup round-trip and the password-lock flow all have tests too.
+protobuf decoder, the encrypted backup round-trip and the password flow (setup, unlock, change,
+re-lock) all have tests too.
 
 ```bash
-node --test tests/     # 26 tests, no dependencies to install
+node --test tests/     # 29 tests, no dependencies to install
 ```
 
 ## Development

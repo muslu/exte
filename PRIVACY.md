@@ -16,11 +16,12 @@ Only the following, all of which **you** enter, is stored **on your device**:
 - The name and issuer (service) of each 2FA account
 - The shared secret needed to generate verification codes
 - Technical fields such as algorithm, digit count, period, and counter
-- Your theme preference and password-lock settings
+- Your theme preference and password settings
 
-This data lives in your browser's `chrome.storage.local` area. If you enable the optional
-password lock, the secrets are encrypted with **AES-256-GCM** using a key derived from your
-password with PBKDF2-SHA256 (310,000 iterations).
+This data lives in your browser's `chrome.storage.local` area. The secrets are always stored
+encrypted with **AES-256-GCM**, using a key derived from the password you set on first run with
+PBKDF2-SHA256 (310,000 iterations). The password itself is never stored anywhere, which is why
+it cannot be recovered or reset by anyone.
 
 ## Where the data goes
 

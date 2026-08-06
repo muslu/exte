@@ -13,6 +13,25 @@
 
 <main id="icerik">
 
+  <!-- parola hiç belirlenmemişse önce kurulum -->
+  <section class="kart bolum" id="kurulumKart" hidden aria-labelledby="kurulumBaslik">
+    <h2 id="kurulumBaslik" data-i18n="kurulumBaslik">Set your password</h2>
+    <p class="ipucu" data-i18n="kurulumIpucu"></p>
+    <p class="uyari-kutu" style="margin:.7rem 0" data-i18n-html="kurulumUyari"></p>
+    <form id="kurulumForm">
+      <div class="alan">
+        <label for="kurulumParola" data-i18n="yeniParola">New password (at least 6 characters)</label>
+        <input type="password" id="kurulumParola" autocomplete="new-password" minlength="6" required>
+      </div>
+      <div class="alan">
+        <label for="kurulumParola2" data-i18n="parolaTekrar">Password (again)</label>
+        <input type="password" id="kurulumParola2" autocomplete="new-password" minlength="6" required>
+      </div>
+      <button type="submit" class="birincil" data-i18n="parolaOlustur">Set password and continue</button>
+      <p id="kurulumHata" class="ipucu hata-metin" role="alert"></p>
+    </form>
+  </section>
+
   <!-- kilitliyse önce parola -->
   <section class="kart bolum" id="kilitKart" hidden aria-labelledby="kilitBaslik">
     <h2 id="kilitBaslik" data-i18n="kilitli">Locked</h2>
@@ -69,39 +88,60 @@
     </section>
 
     <section class="kart bolum" aria-labelledby="kilitAyarBaslik">
-      <h2 id="kilitAyarBaslik" data-i18n="parolaKilidi">Password lock</h2>
-      <p class="ipucu" id="kilitAciklama"></p>
+      <h2 id="kilitAyarBaslik" data-i18n="parolaKilidi">Password</h2>
+      <p class="ipucu" data-i18n="kilitAciklama"></p>
 
-      <form id="kurForm" hidden>
+      <h3 style="margin-top:.9rem" data-i18n="parolaDegistirBaslik">Change password</h3>
+      <form id="degistirForm">
         <div class="alan">
-          <label for="kurParola" data-i18n="yeniParola">New password (at least 6 characters)</label>
-          <input type="password" id="kurParola" autocomplete="new-password" required>
+          <label for="degistirEski" data-i18n="mevcutParola">Current password</label>
+          <input type="password" id="degistirEski" autocomplete="current-password" required>
         </div>
         <div class="alan">
-          <label for="kurParola2" data-i18n="parolaTekrar">Password (again)</label>
-          <input type="password" id="kurParola2" autocomplete="new-password" required>
+          <label for="degistirYeni" data-i18n="yeniParola">New password (at least 6 characters)</label>
+          <input type="password" id="degistirYeni" autocomplete="new-password" minlength="6" required>
         </div>
-        <button type="submit" class="birincil" data-i18n="kilidiKur">Enable lock</button>
+        <div class="alan">
+          <label for="degistirYeni2" data-i18n="parolaTekrar">Password (again)</label>
+          <input type="password" id="degistirYeni2" autocomplete="new-password" minlength="6" required>
+        </div>
+        <button type="submit" class="birincil" data-i18n="parolaDegistirDugme">Change password</button>
         <p class="ipucu" data-i18n="kilitUyari">If you forget your password your accounts cannot be recovered — take a backup first.</p>
       </form>
 
-      <form id="kaldirForm" hidden>
-        <div class="alan">
-          <label for="kaldirParola" data-i18n="mevcutParola">Current password</label>
-          <input type="password" id="kaldirParola" autocomplete="current-password" required>
-        </div>
-        <button type="submit" class="tehlike" data-i18n="kilidiKaldir">Remove lock</button>
-      </form>
-
       <div class="alan" style="margin-top:.9rem">
-        <label for="otoKilit" data-i18n="otomatikKilit">Auto-lock</label>
+        <label for="otoKilit" data-i18n="otomatikKilit">Ask for the password</label>
         <select id="otoKilit">
-          <option value="0">Off</option>
+          <option value="-1">Every time exte is opened</option>
+          <option value="0">Once per browser session</option>
           <option value="5">5 min</option>
           <option value="15">15 min</option>
           <option value="60">1 hour</option>
+          <option value="ozel">After a period I choose…</option>
         </select>
       </div>
+
+      <div id="ozelSureAlan" hidden>
+        <div class="satir alan">
+          <span>
+            <label for="ozelSayi" data-i18n="ozelSure">Do not ask again for</label>
+            <input type="number" id="ozelSayi" min="1" max="43200" step="1" value="30" required>
+          </span>
+          <span>
+            <label for="ozelBirim" data-i18n="ozelBirim">Unit</label>
+            <select id="ozelBirim">
+              <option value="1">minutes</option>
+              <option value="60">hours</option>
+              <option value="1440">days</option>
+            </select>
+          </span>
+          <span class="dar" style="align-self:end">
+            <button type="button" id="ozelKaydet" class="birincil" data-i18n="kaydet">Save</button>
+          </span>
+        </div>
+        <p class="ipucu" data-i18n="otoOzelIpucu"></p>
+      </div>
+
       <p id="kilitAyarDurum" class="durum" role="status"></p>
     </section>
 

@@ -7,16 +7,39 @@
 </head>
 <body class="popup">
 
-<header class="ust">
+<header class="ust" id="ustCubuk">
   <input type="search" id="ara" placeholder="Search…" data-i18n-ph="ara" data-i18n-aria="araAria"
          aria-label="Search accounts" autocomplete="off">
   <button type="button" id="ekleAc" class="duz dar" data-i18n-aria="hesapEkle" data-i18n-title="hesapEkle"
           aria-label="Add account" title="Add account">＋</button>
+  <button type="button" id="kilitleAc" class="duz dar" data-i18n-aria="kilitle" data-i18n-title="kilitle"
+          aria-label="Lock" title="Lock">🔒</button>
   <button type="button" id="ayarlarAc" class="duz dar" data-i18n-aria="ayarlarAc" data-i18n-title="ayarlarAc"
           aria-label="Settings and backup" title="Settings and backup">⚙</button>
 </header>
 
 <main class="govde">
+
+  <!-- ilk kurulum: parola belirleme -->
+  <section id="gorunumKurulum" hidden aria-labelledby="kurulumBaslik">
+    <h1 id="kurulumBaslik" data-i18n="kurulumBaslik">Set your password</h1>
+    <p class="ipucu" data-i18n="kurulumIpucu">
+      exte keeps your accounts encrypted with this password.
+    </p>
+    <p class="uyari-kutu" style="margin:.7rem 0" data-i18n-html="kurulumUyari"></p>
+    <form id="kurForm">
+      <div class="alan">
+        <label for="kurParola" data-i18n="yeniParola">New password (at least 6 characters)</label>
+        <input type="password" id="kurParola" autocomplete="new-password" minlength="6" required>
+      </div>
+      <div class="alan">
+        <label for="kurParola2" data-i18n="parolaTekrar">Password (again)</label>
+        <input type="password" id="kurParola2" autocomplete="new-password" minlength="6" required>
+      </div>
+      <button type="submit" class="birincil" data-i18n="parolaOlustur">Set password and continue</button>
+      <p id="kurHata" class="ipucu hata-metin" role="alert"></p>
+    </form>
+  </section>
 
   <!-- kilit ekranı -->
   <section id="gorunumKilit" hidden aria-labelledby="kilitBaslik">

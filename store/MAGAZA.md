@@ -1,6 +1,6 @@
 # Chrome Web Store — "Yeni öğe ekle" formunun tüm alanları
 
-Panel: <https://chrome.google.com/webstore/devconsole> → **Add new item** → `exte-1.0.0.zip` yükle.
+Panel: <https://chrome.google.com/webstore/devconsole> → **Add new item** → `exte-1.1.0.zip` yükle.
 **Mağaza dili: İngilizce.** Aşağıdaki kutulardaki metinler doğrudan kopyalanıp yapıştırılacak
 şekilde İngilizce hazırlandı; tablolardaki açıklamalar senin için Türkçe.
 
@@ -65,8 +65,9 @@ PRIVACY BY DESIGN
 • The extension has NO NETWORK PERMISSION. It cannot contact any server.
 • No account, no sign-in, no telemetry, no analytics, no ads.
 • Your secrets stay in your own browser storage.
-• Optional password lock: your secrets are stored encrypted with AES-256-GCM and
-  the extension re-locks itself after the idle timeout you choose.
+• A password is required: you set it on first run and exte asks for it every time you
+  open it — or after an idle period you choose. Your secrets are stored encrypted with
+  AES-256-GCM and never leave the device.
 
 WHY IT IS SIMPLE
 
@@ -75,9 +76,10 @@ and no tab monitoring; codes are generated only while the popup is open.
 
 IMPORTANT
 
-If you delete your browser profile without a backup, or forget your lock password,
-your accounts cannot be recovered. Right after installing, open the options page and
-save an encrypted backup somewhere safe.
+There is no password recovery: nobody can reset the password you set on first run.
+If you forget it, or delete your browser profile without a backup, your accounts
+cannot be recovered. Right after installing, open the options page and save an
+encrypted backup somewhere safe.
 ```
 
 ### Graphic assets — hangi dosya hangi alana

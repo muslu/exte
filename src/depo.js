@@ -1,11 +1,15 @@
-// chrome.storage katmanı — hesap CRUD + opsiyonel parola kilidi.
+// chrome.storage katmanı — hesap CRUD + zorunlu parola kilidi.
+//
+// Parola ZORUNLUDUR: ilk kurulumda kullanıcı belirler, sonra her açılışta sorulur.
+// Parola kurtarma YOKTUR — parola yalnızca PBKDF2 türetiminde kullanılır, hiçbir
+// yerde saklanmaz; unutulursa `kasa` çözülemez.
 //
 // Şema (chrome.storage.local):
 //   surum:    1
 //   kilit:    {acik:false} | {acik:true, tuz:b64, yineleme:n, kontrol:b64(iv+ct)}
-//   hesaplar: [...]        ← kilit KAPALIYKEN
-//   kasa:     b64(iv+ct)   ← kilit AÇIKKEN (hesaplar JSON'u şifreli)
-//   ayarlar:  {tema, otoKilitDk}
+//   hesaplar: [...]        ← yalnızca kurulum ÖNCESİ (1.0.0'dan yükseltmede)
+//   kasa:     b64(iv+ct)   ← kurulum SONRASI (hesaplar JSON'u şifreli)
+//   ayarlar:  {tema, otoKilitDk, dil}
 //
 // Oturum anahtarı chrome.storage.session'da tutulur: tarayıcı kapanınca silinir,
 // content script'ler göremez (TRUSTED_CONTEXTS). Service worker belleği MV3'te
@@ -17,9 +21,16 @@ import { anahtarTurte, anahtarDisaAktar, anahtarIceAktar, sifrele, coz, rastgele
 import { t } from "./metinler.js";
 
 const SURUM = 1;
-const OTURUM_ANAHTAR = "oturumAnahtari";
+export const OTURUM_ANAHTAR = "oturumAnahtari";
 const OTURUM_DAMGA = "sonKullanim";
-export const VARSAYILAN_AYARLAR = { tema: "auto", otoKilitDk: 15, dil: "auto" };
+
+/** otoKilitDk için özel değer: uzantı her açıldığında parola sorulur. */
+export const HER_ACILIS = -1;
+
+/** Kullanıcının girebileceği en uzun süre: 30 gün. */
+export const OTO_KILIT_MAKS_DK = 43_200;
+
+export const VARSAYILAN_AYARLAR = { tema: "auto", otoKilitDk: HER_ACILIS, dil: "auto" };
 
 const yerel = {
   oku: (anahtarlar) => chrome.storage.local.get(anahtarlar),
@@ -31,13 +42,28 @@ const yerel = {
 
 export async function ayarlariOku() {
   const { ayarlar } = await yerel.oku("ayarlar");
-  return { ...VARSAYILAN_AYARLAR, ...(ayarlar || {}) };
+  const birlesik = { ...VARSAYILAN_AYARLAR, ...(ayarlar || {}) };
+  // Bozuk/elle düzenlenmiş bir süre kilidi sonsuza kadar açık bırakmasın:
+  // geçersiz değer en katı varsayılana (her açılışta sor) düşer.
+  if (!otoKilitGecerliMi(birlesik.otoKilitDk)) birlesik.otoKilitDk = VARSAYILAN_AYARLAR.otoKilitDk;
+  return birlesik;
 }
 
 export async function ayarlariYaz(yama) {
   const yeni = { ...(await ayarlariOku()), ...yama };
   await yerel.yaz({ ayarlar: yeni });
   return yeni;
+}
+
+/** Geçerli süreler: HER_ACILIS (-1), 0 (tarayıcı oturumu boyunca) veya 1…43200 tam dakika. */
+export function otoKilitGecerliMi(dk) {
+  return Number.isInteger(dk) && dk >= HER_ACILIS && dk <= OTO_KILIT_MAKS_DK;
+}
+
+/** Parola sorma sıklığını yazar. Kullanıcının girdiği özel süre buradan doğrulanır. */
+export async function otoKilitYaz(dk) {
+  if (!otoKilitGecerliMi(dk)) throw new Error(t("otoSureGecersiz", OTO_KILIT_MAKS_DK / 1440));
+  return ayarlariYaz({ otoKilitDk: dk });
 }
 
 /* ---------- kilit durumu ---------- */
@@ -47,11 +73,22 @@ export async function kilitDurumu() {
   return kilit && kilit.acik ? kilit : { acik: false };
 }
 
-/** Kilit açıksa ve oturum anahtarı yoksa/süresi dolduysa true. */
+/** Parola henüz belirlenmediyse true — arayüz kurulum ekranını gösterir. */
+export async function kurulumGerekliMi() {
+  return !(await kilitDurumu()).acik;
+}
+
+/** Kilit kuruluysa ve oturum anahtarı yoksa/süresi dolduysa true. */
 export async function kilitliMi() {
   const kilit = await kilitDurumu();
   if (!kilit.acik) return false;
   return (await oturumAnahtari()) === null;
+}
+
+/** Popup her açıldığında çağrılır: "her açılışta sor" seçiliyse oturumu düşürür. */
+export async function acilistaKilitle() {
+  const { otoKilitDk } = await ayarlariOku();
+  if (otoKilitDk === HER_ACILIS) await kilitle();
 }
 
 async function oturumAnahtari() {
@@ -84,7 +121,7 @@ export async function kilitle() {
   await chrome.storage.session.remove([OTURUM_ANAHTAR, OTURUM_DAMGA]);
 }
 
-/** Kilidi kurar: mevcut hesaplar şifrelenip `kasa`ya taşınır. */
+/** İlk kurulum: parolayı belirler, varsa mevcut hesaplar şifrelenip `kasa`ya taşınır. */
 export async function kilitKur(parola) {
   if (!parola || parola.length < 6) throw new Error(t("parolaKisa"));
   if ((await kilitDurumu()).acik) throw new Error(t("kilitZatenAcik"));
@@ -104,28 +141,39 @@ export async function kilitKur(parola) {
   });
 }
 
-/** Kilidi kaldırır: hesaplar düz olarak geri yazılır. Parola doğrulaması ister. */
-export async function kilidiKaldir(parola) {
-  const kilit = await kilitDurumu();
-  if (!kilit.acik) return;
-  const anahtar = await anahtarTurte(parola, b64Coz(kilit.tuz), kilit.yineleme || PBKDF2_YINELEME);
-  await coz(anahtar, kilit.kontrol);
-  const { kasa } = await yerel.oku("kasa");
-  const hesaplar = kasa ? JSON.parse(await coz(anahtar, kasa)) : [];
-  await yerel.yaz({ surum: SURUM, kilit: { acik: false }, hesaplar });
-  await yerel.sil("kasa");
-  await kilitle();
-}
-
+/**
+ * Parolayı değiştirir: kasa eski parolayla çözülüp yeni anahtarla yeniden şifrelenir.
+ * Gizli anahtarlar hiçbir adımda diske düz yazılmaz. Eski parola yanlışsa hata fırlatır.
+ */
 export async function parolaDegistir(eski, yeni) {
-  await kilidiKaldir(eski);
-  await kilitKur(yeni);
+  if (!yeni || yeni.length < 6) throw new Error(t("parolaKisa"));
+  const kilit = await kilitDurumu();
+  if (!kilit.acik) throw new Error(t("kilitYok"));
+
+  const eskiAnahtar = await anahtarTurte(eski, b64Coz(kilit.tuz), kilit.yineleme || PBKDF2_YINELEME);
+  await coz(eskiAnahtar, kilit.kontrol); // eski parola yanlışsa burada patlar
+  const { kasa } = await yerel.oku("kasa");
+  const hesaplar = kasa ? JSON.parse(await coz(eskiAnahtar, kasa)) : [];
+
+  const tuz = rastgele(16);
+  const yeniAnahtar = await anahtarTurte(yeni, tuz);
+  await yerel.yaz({
+    surum: SURUM,
+    kilit: { acik: true, tuz: b64Kodla(tuz), yineleme: PBKDF2_YINELEME, kontrol: await sifrele(yeniAnahtar, "exte") },
+    kasa: await sifrele(yeniAnahtar, JSON.stringify(hesaplar)),
+  });
+  await chrome.storage.session.set({
+    [OTURUM_ANAHTAR]: await anahtarDisaAktar(yeniAnahtar),
+    [OTURUM_DAMGA]: Date.now(),
+  });
 }
 
 /* ---------- hesap CRUD ---------- */
 
 export async function hesaplariOku() {
   const kilit = await kilitDurumu();
+  // Kurulum öncesi (yalnızca 1.0.0'dan yükseltmede) hesaplar düz alanda durur;
+  // kilitKur() ilk parolada bu listeyi kasaya taşır.
   if (!kilit.acik) {
     const { hesaplar } = await yerel.oku("hesaplar");
     return Array.isArray(hesaplar) ? hesaplar : [];

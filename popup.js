@@ -14,11 +14,13 @@ const kartlar = new Map(); // id → {kod, cubuk, pencere}
 /* ---------------- görünüm yönetimi ---------------- */
 
 function gorunum(ad) {
+  $("#gorunumKurulum").hidden = ad !== "kurulum";
   $("#gorunumKilit").hidden = ad !== "kilit";
   $("#gorunumListe").hidden = ad !== "liste";
   $("#gorunumEkle").hidden = ad !== "ekle";
   $("#ara").disabled = ad !== "liste";
-  $("#ekleAc").hidden = ad === "kilit";
+  // Kilit/kurulum ekranında üst çubuğun tamamı kapalı: hesaplara erişim yok.
+  $("#ustCubuk").hidden = ad !== "liste" && ad !== "ekle";
 }
 
 /* ---------------- liste ---------------- */
@@ -136,7 +138,15 @@ async function kodKopyala(id, dugme) {
 /* ---------------- yükleme / kilit ---------------- */
 
 async function yukle() {
+  if (await depo.kurulumGerekliMi()) {
+    gorunum("kurulum");
+    $("#kurParola").focus();
+    return;
+  }
   if (await depo.kilitliMi()) {
+    hesaplar = [];
+    kartlar.clear();
+    $("#liste").replaceChildren();
     gorunum("kilit");
     $("#kilitParola").focus();
     return;
@@ -198,6 +208,28 @@ function olaylariBagla() {
       }
     });
   }
+
+  // ilk kurulum — parola belirleme
+  $("#kurForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    $("#kurHata").textContent = "";
+    try {
+      if ($("#kurParola").value !== $("#kurParola2").value) throw new Error(t("parolalarEslesmiyor"));
+      await depo.kilitKur($("#kurParola").value);
+      $("#kurParola").value = $("#kurParola2").value = "";
+      toast(t("kilitKuruldu"));
+      await yukle();
+    } catch (err) {
+      hataGoster("#kurHata", err);
+    }
+  });
+
+  // elle kilitleme
+  $("#kilitleAc").addEventListener("click", async () => {
+    await depo.kilitle();
+    duyur(t("kilitlendi"));
+    await yukle();
+  });
 
   // kilit
   $("#kilitForm").addEventListener("submit", async (e) => {
@@ -288,6 +320,7 @@ await diliBaslat();
 sayfayiCevir();
 await temayiUygula();
 olaylariBagla();
+await depo.acilistaKilitle(); // "her açılışta sor" seçiliyse önceki oturumu düşür
 await yukle();
 setInterval(() => {
   if (!$("#gorunumListe").hidden) kodlariGuncelle();

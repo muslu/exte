@@ -54,11 +54,12 @@ Only the following, all of which <strong>you</strong> enter, is stored <strong>o
 <li>The name and issuer (service) of each 2FA account</li>
 <li>The shared secret needed to generate verification codes</li>
 <li>Technical fields such as algorithm, digit count, period, and counter</li>
-<li>Your theme preference and password-lock settings</li>
+<li>Your theme preference and password settings</li>
 </ul>
-<p>This data lives in your browser's <code>chrome.storage.local</code> area. If you enable the optional
-password lock, the secrets are encrypted with <strong>AES-256-GCM</strong> using a key derived from your
-password with PBKDF2-SHA256 (310,000 iterations).</p>
+<p>This data lives in your browser's <code>chrome.storage.local</code> area. The secrets are always stored
+encrypted with <strong>AES-256-GCM</strong>, using a key derived from the password you set on first run with
+PBKDF2-SHA256 (310,000 iterations). The password itself is never stored anywhere, which is why
+it cannot be recovered or reset by anyone.</p>
 <h2>Where the data goes</h2>
 <p><strong>Nowhere.</strong> The extension manifest declares no <code>host_permissions</code>, and the code contains no
 network calls (<code>fetch</code>, <code>XMLHttpRequest</code>, WebSocket). This is enforced by the browser — even

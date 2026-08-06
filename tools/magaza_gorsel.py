@@ -32,26 +32,39 @@ DEMO_HESAPLAR = [
     {"id": "d4", "ad": "makdos.biz", "issuer": "Cloudflare", "gizli": "MFRGGZDFMZTWQ2LK", "tip": "totp", "algo": "SHA1", "hane": 6, "periyot": 30, "sayac": 0},
 ]
 
-STUB = """// Yalnızca mağaza görselleri için sahte chrome API'si. Eklentiye DAHİL EDİLMEZ.
-(() => {
-  // Zamanı sabitle: periyodun 7. saniyesi → geri sayım çubuğu dolu ve mavi kalır.
-  // Aksi hâlde yakalama anına göre çubuk kırmızıya düşüp hata gibi görünüyor.
-  const SABIT = Math.floor(1770000000000 / 30000) * 30000 + 7000;
-  Date.now = () => SABIT;
-  const yerel = new Map(Object.entries(%s));
-  const oturum = new Map();
-  const alan = (harita) => ({
-    async get(a) { const l = typeof a === "string" ? [a] : a; const o = {};
-      for (const k of l) if (harita.has(k)) o[k] = structuredClone(harita.get(k)); return o; },
-    async set(n) { for (const [k, v] of Object.entries(n)) harita.set(k, structuredClone(v)); },
-    async remove(a) { for (const k of [].concat(a)) harita.delete(k); },
-  });
-  globalThis.chrome = {
-    storage: { local: alan(yerel), session: alan(oturum) },
-    runtime: { openOptionsPage() {} },
-    tabs: { captureVisibleTab: async () => { throw new Error("demo"); } },
-  };
-})();
+# Sahte chrome API'sini kurup sayfanın kendi modülünü yükler. Parola kurulumu await
+# edilebilsin diye klasik script değil, module olarak enjekte edilir.
+STUB = """// Yalnızca mağaza görselleri için — eklentiye dâhil edilmez.
+// Zamanı sabitle: periyodun 7. saniyesi → geri sayım çubuğu dolu ve mavi kalır.
+// Aksi hâlde yakalama anına göre çubuk kırmızıya düşüp hata gibi görünüyor.
+const SABIT = Math.floor(1770000000000 / 30000) * 30000 + 7000;
+Date.now = () => SABIT;
+const yerel = new Map(Object.entries(%(depo)s));
+const oturum = new Map();
+const alan = (harita) => ({
+  async get(a) { const l = typeof a === "string" ? [a] : a; const o = {};
+    for (const k of l) if (harita.has(k)) o[k] = structuredClone(harita.get(k)); return o; },
+  async set(n) { for (const [k, v] of Object.entries(n)) harita.set(k, structuredClone(v)); },
+  async remove(a) { for (const k of [].concat(a)) harita.delete(k); },
+});
+globalThis.chrome = {
+  storage: { local: alan(yerel), session: alan(oturum) },
+  runtime: { openOptionsPage() {} },
+  tabs: { captureVisibleTab: async () => { throw new Error("demo"); } },
+};
+
+// PBKDF2'yi demo için 1000 iterasyona indir. Headless Chrome'un --virtual-time-budget'ı
+// gerçek CPU işini beklemez: 310.000 iterasyon (~300 ms gerçek zaman) bitmeden sanal saat
+// dolar ve ekran görüntüsü boş sayfayı yakalar. Yalnızca görsel üretimini etkiler.
+const gercekDeriveKey = crypto.subtle.deriveKey.bind(crypto.subtle);
+crypto.subtle.deriveKey = (algo, ...kalan) =>
+  gercekDeriveKey(algo?.name === "PBKDF2" ? { ...algo, iterations: 1000 } : algo, ...kalan);
+
+// Parola artık zorunlu: demo hesapları kasaya taşı ve oturumu açık bırak, böylece
+// görsellerde kurulum/kilit ekranı değil gerçek liste görünür.
+const depo = await import("./src/depo.js");
+await depo.kilitKur("demo-parolasi");
+await import("./%(sayfa)s");
 """
 
 VITRIN = """<!doctype html>
@@ -120,8 +133,9 @@ VITRINLER = [
                           "<li><code>otpauth://</code> list (.txt)</li>"
                           "<li>Import straight from a Google Authenticator QR</li></ul>"},
     {"ad": "screenshot-4-dark-theme-1280x800", "sayfa": "popup.html", "g": 360, "y": 540, "tema": KOYU, "tikla": "null",
-     "h1": "Dark theme and an<br>optional password lock",
-     "alt": "With the lock on, your secrets are stored encrypted with AES-256-GCM. No server, no network permission.",
+     "h1": "Dark theme, locked<br>with your password",
+     "alt": "Your secrets are stored encrypted with AES-256-GCM and the password is asked for on every open. "
+            "No server, no network permission.",
      "liste": ""},
 ]
 
@@ -150,15 +164,17 @@ def ortam_hazirla(gecici: pathlib.Path, tema: str) -> None:
         else:
             shutil.copy2(kaynak, hedef)
 
+    # otoKilitDk: 15 → görsel alınırken "her açılışta kilitle" devreye girmesin.
     depo = {"surum": 1, "kilit": {"acik": False}, "hesaplar": DEMO_HESAPLAR,
             "ayarlar": {"tema": tema, "otoKilitDk": 15, "dil": "en"}}
-    (gecici / "demo-chrome.js").write_text(STUB % json.dumps(depo, ensure_ascii=False), encoding="utf-8")
 
-    for sayfa in ("popup.html", "ayarlar.html"):
-        yol = gecici / sayfa
+    for sayfa in ("popup", "ayarlar"):
+        (gecici / f"demo-{sayfa}.js").write_text(
+            STUB % {"depo": json.dumps(depo, ensure_ascii=False), "sayfa": f"{sayfa}.js"}, encoding="utf-8")
+        yol = gecici / f"{sayfa}.html"
         metin = yol.read_text(encoding="utf-8")
-        yol.write_text(metin.replace('<script src="vendor/jsQR.js">',
-                                     '<script src="demo-chrome.js"></script>\n<script src="vendor/jsQR.js">'),
+        yol.write_text(metin.replace(f'<script type="module" src="{sayfa}.js"></script>',
+                                     f'<script type="module" src="demo-{sayfa}.js"></script>'),
                        encoding="utf-8")
 
 
